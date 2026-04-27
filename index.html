@@ -16,20 +16,23 @@
       var isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent)
         || window.innerWidth < 768;
 
+      // QR이 인코딩한 ?track= 파라미터를 리디렉트 후에도 유지
+      var qs = window.location.search || '';
+
       if (isMobile) {
-        window.location.replace('mobile.html');
+        window.location.replace('mobile.html' + qs);
         return;
       }
 
       try {
         var auth = JSON.parse(localStorage.getItem('bigdata_auth'));
         if (auth && auth.authenticated) {
-          window.location.replace('lobby.html');
+          window.location.replace('lobby.html' + qs);
           return;
         }
       } catch (e) {}
 
-      window.location.replace('auth.html');
+      window.location.replace('auth.html' + qs);
     })();
   </script>
 </head>

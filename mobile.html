@@ -65,6 +65,14 @@
 
   <div class="mobile-hero" style="padding: 0;">
     <div class="animate-in" style="width: 100%;">
+      <!-- Track badge (QR ?track= 파라미터 인식) -->
+      <div id="track-badge-container" style="background: var(--color-surface); padding: 1.25rem 1.5rem 0; text-align: center; display: none;">
+        <span id="track-badge" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.875rem; border-radius: 9999px; background: rgba(232,98,26,0.15); color: #e8621a; font-weight: 600; font-size: 0.8125rem; letter-spacing: 0.04em;">
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #e8621a;"></span>
+          <span id="track-label">Python 트랙</span>
+        </span>
+      </div>
+
       <!-- Book Cover (navy background, image overlaps into white) -->
       <div style="background: var(--color-surface); padding: 2rem 1.5rem 0; text-align: center;">
         <img src="assets/book-cover.png" alt="빅분기 실기 모의고사" style="width: 160px; margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.3); position: relative; margin-bottom: -40px;">
@@ -96,9 +104,21 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    // Link copy
+    // Track 배지 표시 (?track=python|r 인식)
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var track = params.get('track');
+      if (track === 'python' || track === 'r') {
+        var label = track === 'r' ? 'R 트랙' : 'Python 트랙';
+        document.getElementById('track-label').textContent = label;
+        document.getElementById('track-badge-container').style.display = 'block';
+        try { sessionStorage.setItem('bigdata_track', track); } catch (e) {}
+      }
+    })();
+
+    // Link copy (트랙 파라미터 보존)
     document.getElementById('copy-link-btn').addEventListener('click', function () {
-      var url = window.location.origin + window.location.pathname.replace(/mobile\.html$/, '');
+      var url = window.location.origin + window.location.pathname.replace(/mobile\.html$/, '') + window.location.search;
       if (navigator.clipboard) {
         navigator.clipboard.writeText(url).then(function () {
           showToast('링크가 복사되었습니다!');
@@ -115,9 +135,9 @@
       }
     });
 
-    // Web Share API
+    // Web Share API (트랙 파라미터 보존)
     document.getElementById('share-btn').addEventListener('click', function () {
-      var url = window.location.origin + window.location.pathname.replace(/mobile\.html$/, '');
+      var url = window.location.origin + window.location.pathname.replace(/mobile\.html$/, '') + window.location.search;
       if (navigator.share) {
         navigator.share({
           title: '빅데이터 분석기사 실기 모의고사',
