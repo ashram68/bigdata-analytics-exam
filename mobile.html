@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>빅분기 실기 모의고사 - 모바일 안내</title>
+  <meta name="description" content="빅데이터 분석기사 실기 모의고사는 PC 환경에서 최적화되어 있습니다.">
+  <link rel="icon" type="image/jpeg" href="assets/favicon.jpg">
+  <meta property="og:title" content="빅데이터 분석기사 실기 모의고사">
+  <meta property="og:description" content="빅데이터 분석기사 자격증 모의고사 - 도서 구매자 전용 학습 서비스">
+  <meta property="og:image" content="assets/og-image.jpg">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/theme-a.css">
+  <link rel="stylesheet" href="css/base.css">
+  <style>
+    .mobile-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      padding: 0;
+      text-align: center;
+    }
+    .mobile-icon {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+    }
+    .mobile-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      width: 100%;
+      max-width: 320px;
+      margin: 2rem auto 0;
+    }
+    .feature-list {
+      list-style: none;
+      text-align: left;
+      margin: 2rem 0;
+      max-width: 320px;
+    }
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.5rem 0;
+      font-size: 0.9375rem;
+      color: var(--color-on-surface-variant);
+    }
+    .feature-list li .icon {
+      flex-shrink: 0;
+      width: 24px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header" style="justify-content: center;">
+    <div class="logo">빅분기 <span class="logo-sub">실기 모의고사</span></div>
+  </header>
+
+  <div class="mobile-hero" style="padding: 0;">
+    <div class="animate-in" style="width: 100%;">
+      <!-- Book Cover (navy background, image overlaps into white) -->
+      <div style="background: var(--color-surface); padding: 2rem 1.5rem 0; text-align: center;">
+        <img src="assets/book-cover.png" alt="빅분기 실기 모의고사" style="width: 160px; margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.3); position: relative; margin-bottom: -40px;">
+      </div>
+
+      <!-- White section: text + buttons -->
+      <div style="background: #ffffff; padding: 3.5rem 1.5rem 2rem; text-align: center;">
+        <h1 style="margin-bottom: 0.5rem; font-size: 1.5rem; color: #152345;">PC 실습 환경에<br>최적화된 서비스입니다.</h1>
+        <p style="max-width: 300px; margin: 0 auto 2rem; color: #5a6577;">
+          원활한 실습과 해설 강의 수강을 위해<br>PC에서 접속해 주세요.
+        </p>
+
+        <div class="mobile-actions" style="margin-top: 0;">
+          <button class="btn btn-primary btn-lg w-full" id="share-btn">
+            카카오톡으로 링크 보내기
+          </button>
+          <button class="btn btn-secondary btn-lg w-full" id="copy-link-btn" style="background: #ffffff; color: #152345; border: 1px solid #d0d5dd;">
+            URL 복사
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="footer">&copy; 2026 빅데이터 분석기사 실기 모의고사.<br>All rights reserved.</footer>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Link copy
+    document.getElementById('copy-link-btn').addEventListener('click', function () {
+      var url = window.location.origin + window.location.pathname.replace(/mobile\.html$/, '');
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(function () {
+          showToast('링크가 복사되었습니다!');
+        });
+      } else {
+        // Fallback
+        var ta = document.createElement('textarea');
+        ta.value = url;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('링크가 복사되었습니다!');
+      }
+    });
+
+    // Web Share API
+    document.getElementById('share-btn').addEventListener('click', function () {
+      var url = window.location.origin + window.location.pathname.replace(/mobile\.html$/, '');
+      if (navigator.share) {
+        navigator.share({
+          title: '빅데이터 분석기사 실기 모의고사',
+          text: '빅데이터 분석기사 자격증 모의고사 연습 - PC에서 접속하세요!',
+          url: url
+        }).catch(function () {});
+      } else {
+        // Fallback: copy link
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(url);
+        }
+        showToast('이 브라우저에서는 링크 복사로 대체됩니다.');
+      }
+    });
+
+    function showToast(msg) {
+      var toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(function () { toast.classList.remove('show'); }, 2000);
+    }
+  </script>
+</body>
+</html>

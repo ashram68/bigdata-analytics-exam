@@ -1,0 +1,98 @@
+{
+  "examId": "exam-01",
+  "title": "1회차 모의고사 - Titanic 데이터 기반",
+  "subtitle": "작업형 1·2·3유형 정답 및 해설",
+  "dataset": "titanic_1.csv",
+  "datasetUrl": "https://raw.githubusercontent.com/ashram68/bigdata-analytics-exam/main/data/exam-01/titanic_1.csv",
+  "prerequisiteCode": "import pandas as pd\nimport numpy as np\nimport warnings\nwarnings.filterwarnings('ignore')\n\ndf = pd.read_csv('https://raw.githubusercontent.com/ashram68/bigdata-analytics-exam/main/data/exam-01/titanic_1.csv')",
+  "questions": [
+    {
+      "id": 1,
+      "type": "code",
+      "category": "1유형 · 데이터 전처리",
+      "title": "Age 결측치 중위수 대체 후 생존자 평균 나이",
+      "score": 10,
+      "problem": [
+        "Titanic 데이터에서 Age 변수의 결측치를 Age의 중위수(median) 로 대체하시오.",
+        "대체 후, 생존자(Survived = 1) 의 평균 나이를 구하시오.",
+        "결과는 소수 둘째 자리까지 반올림하여 출력하시오."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "28.29",
+      "code": "# 데이터 로드\ndf = pd.read_csv('titanic_1.csv')\n\n# Age 변수의 중위수 계산 (결측치 제외)\nage_median = df['Age'].median()\n\n# Age 결측치를 중위수로 대체\ndf['Age'] = df['Age'].fillna(age_median)\n\n# 생존자(Survived == 1) 의 평균 나이 계산\nresult = df[df['Survived'] == 1]['Age'].mean()\n\n# 소수 둘째 자리까지 반올림 후 출력\nprint(round(result, 2))   # 28.29",
+      "explanation": "1) median() 함수는 결측치를 제외하고 중위수를 계산합니다. (skipna=True 기본값)\n2) fillna(age_median) 으로 결측치 177건을 중위수 28.0 으로 일괄 대체합니다.\n3) Survived == 1 조건으로 생존자 342명을 필터링한 후 mean() 으로 평균 나이를 구합니다.\n4) round(result, 2) 로 소수 둘째 자리까지 반올림하면 28.29 가 출력됩니다.",
+      "tip": "median() 과 mean() 모두 결측치는 자동 제외되지만, 실수 방지를 위해 fillna() 로 명시적으로 대체하는 것이 안전합니다."
+    },
+    {
+      "id": 2,
+      "type": "code",
+      "category": "1유형 · 데이터 전처리",
+      "title": "준비 중",
+      "score": 10,
+      "problem": ["원고 도착 후 활성화됩니다."],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "-",
+      "code": "# 준비 중",
+      "explanation": "1유형 2번 문제는 발주처 원고 수신 후 적재됩니다.",
+      "tip": null
+    },
+    {
+      "id": 3,
+      "type": "code",
+      "category": "1유형 · 데이터 전처리",
+      "title": "준비 중",
+      "score": 10,
+      "problem": ["원고 도착 후 활성화됩니다."],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "-",
+      "code": "# 준비 중",
+      "explanation": "1유형 3번 문제는 발주처 원고 수신 후 적재됩니다.",
+      "tip": null
+    },
+    {
+      "id": 4,
+      "type": "code",
+      "category": "2유형 · ML 모델링 (CSV 제출)",
+      "title": "준비 중",
+      "score": 40,
+      "problem": ["원고 도착 후 활성화됩니다.", "예측 결과를 CSV 파일로 제출하는 형식입니다."],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "-",
+      "code": "# 준비 중",
+      "explanation": "2유형은 분류/회귀 모델을 학습하여 X_test에 대한 예측 결과를 CSV로 제출합니다. 발주처 원고 수신 후 적재됩니다.",
+      "tip": null
+    },
+    {
+      "id": 5,
+      "type": "code",
+      "category": "3유형 · 통계 분석",
+      "title": "준비 중",
+      "score": 15,
+      "problem": ["원고 도착 후 활성화됩니다.", "t-검정 또는 회귀계수 등 통계 검정 문제입니다."],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "-",
+      "code": "# 준비 중",
+      "explanation": "3유형은 가설검정·회귀분석·오즈비 등 통계 분석 문제이며 소문항 단위로 구성됩니다.",
+      "tip": null
+    },
+    {
+      "id": 6,
+      "type": "code",
+      "category": "3유형 · 통계 분석",
+      "title": "준비 중",
+      "score": 15,
+      "problem": ["원고 도착 후 활성화됩니다."],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "-",
+      "code": "# 준비 중",
+      "explanation": "3유형 2번 문제는 발주처 원고 수신 후 적재됩니다.",
+      "tip": null
+    }
+  ]
+}

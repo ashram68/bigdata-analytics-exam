@@ -1,0 +1,96 @@
+/* Theme: BigData Analytics Exam (Navy + White Card + Orange Accent) */
+/* 클라이언트 이미지 픽셀 추출 기반 색상 */
+:root {
+  /* Primary - Orange accent (버튼) */
+  --color-primary: #e8621a;
+  --color-primary-dim: #d35400;
+  --color-primary-container: #f45e07;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #ffffff;
+
+  /* Secondary */
+  --color-secondary: #4a5a6d;
+  --color-secondary-dim: #3d4e60;
+  --color-secondary-container: #e8ecf1;
+  --color-on-secondary: #112342;
+
+  /* Tertiary */
+  --color-tertiary: #f39c12;
+  --color-tertiary-container: #fde8c0;
+  --color-on-tertiary-container: #5a3210;
+
+  /* Surface & Background - Navy */
+  --color-surface: #112342;
+  --color-surface-dim: #0b1c3d;
+  --color-surface-container: #152345;
+  --color-surface-container-low: #0f2040;
+  --color-surface-container-high: #1a2d50;
+  --color-surface-container-highest: #203558;
+  --color-surface-container-lowest: #091530;
+  --color-background: #112342;
+
+  /* Text */
+  --color-on-surface: #e8ecf5;
+  --color-on-surface-variant: #a0b0c8;
+  --color-on-background: #e8ecf5;
+
+  /* Outline */
+  --color-outline: #4a5a6d;
+  --color-outline-variant: rgba(74, 90, 109, 0.3);
+
+  /* Status */
+  --color-error: #e74c3c;
+  --color-error-container: #4a1515;
+  --color-success: #27ae60;
+  --color-success-light: #e8f5e9;
+  --color-warning: #f39c12;
+
+  /* Inverse */
+  --color-inverse-surface: #e8ecf5;
+  --color-inverse-on-surface: #112342;
+
+  /* Typography */
+  --font-headline: 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-label: 'Inter', sans-serif;
+  --font-code: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Shape */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-full: 9999px;
+
+  /* Elevation */
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.2);
+  --shadow-md: 0 2px 12px rgba(0,0,0,0.25);
+  --shadow-lg: 0 4px 24px rgba(0,0,0,0.3);
+
+  /* Glassmorphism */
+  --glass-bg: transparent;
+  --glass-border: transparent;
+  --glass-blur: 0;
+
+  /* Specific component tokens */
+  --card-bg: #ffffff;
+  --card-border: rgba(0, 0, 0, 0.06);
+  --card-hover-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  --input-bg: #ffffff;
+  --input-border: #d0d5dd;
+  --input-focus-border: #e8621a;
+  --badge-bg: #fff3e0;
+  --badge-text: #d35400;
+  --code-bg: #1e1e2e;
+  --code-text: #e8ecf5;
+  --sidebar-bg: var(--color-surface-container);
+  --sidebar-active-bg: #e8621a;
+  --sidebar-active-text: #ffffff;
+  --btn-primary-bg: #e8621a;
+  --btn-primary-text: #ffffff;
+  --btn-primary-hover: #d35400;
+  --progress-bg: rgba(255,255,255,0.2);
+  --progress-fill: #e8621a;
+  --tooltip-bg: var(--color-surface-container-highest);
+  --tooltip-text: var(--color-on-surface);
+}

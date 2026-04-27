@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>빅분기 실기 모의고사 - 풀이 뷰어</title>
+  <link rel="icon" type="image/jpeg" href="assets/favicon.jpg">
+  <meta property="og:title" content="빅데이터 분석기사 실기 모의고사">
+  <meta property="og:description" content="빅데이터 분석기사 자격증 모의고사 - 도서 구매자 전용 학습 서비스">
+  <meta property="og:image" content="assets/og-image.jpg">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Prism.js for code highlighting -->
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/theme-a.css">
+  <link rel="stylesheet" href="css/base.css">
+  <style>
+    /* Prism override to match our theme */
+    pre[class*="language-"], code[class*="language-"] {
+      font-family: var(--font-code) !important;
+      font-size: 0.875rem !important;
+      background: none !important;
+      text-shadow: none !important;
+    }
+    pre[class*="language-"] {
+      padding: 1rem !important;
+      margin: 0 !important;
+    }
+  </style>
+</head>
+<body>
+  <!-- Auth Guard -->
+  <script>
+    (function(){
+      try {
+        var auth = JSON.parse(localStorage.getItem('bigdata_auth'));
+        if (!auth || !auth.authenticated) { window.location.replace('auth.html'); }
+      } catch(e) { window.location.replace('auth.html'); }
+    })();
+  </script>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="flex items-center gap-md">
+      <a href="lobby.html" class="btn btn-ghost btn-sm" style="padding: 0.375rem 0.75rem;">← 로비</a>
+      <div class="logo">빅분기 <span class="logo-sub">실기 모의고사</span></div>
+    </div>
+    <div class="header-actions">
+      <span class="text-sm text-muted" id="header-progress"></span>
+    </div>
+  </header>
+
+  <!-- Mobile Question Nav -->
+  <nav class="mobile-q-nav" id="mobile-q-nav">
+    <!-- Rendered by JS -->
+  </nav>
+
+  <!-- Layout -->
+  <div class="viewer-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-title">문항 목록</div>
+      <div id="sidebar-items">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Prerequisite code section -->
+      <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--color-outline-variant);">
+        <button class="sidebar-item" id="prereq-btn" style="font-size: 0.8125rem;">
+          <span class="q-num" style="font-size: 0.625rem;">⚙️</span>
+          <span>사전 코드</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="viewer-main" id="viewer-main">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+
+  <footer class="footer">&copy; 2026 빅데이터 분석기사 실기 모의고사. All rights reserved.</footer>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+  <script src="js/colab-notice.js"></script>
+  <script src="js/viewer.js"></script>
+  <script src="js/protection.js"></script>
+</body>
+</html>

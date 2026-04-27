@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>빅분기 실기 모의고사 - 학습 로비</title>
+  <link rel="icon" type="image/jpeg" href="assets/favicon.jpg">
+  <meta property="og:title" content="빅데이터 분석기사 실기 모의고사">
+  <meta property="og:description" content="빅데이터 분석기사 자격증 모의고사 - 도서 구매자 전용 학습 서비스">
+  <meta property="og:image" content="assets/og-image.jpg">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/theme-a.css">
+  <link rel="stylesheet" href="css/base.css">
+</head>
+<body>
+  <!-- Auth Guard -->
+  <script>
+    (function(){
+      try {
+        var auth = JSON.parse(localStorage.getItem('bigdata_auth'));
+        if (!auth || !auth.authenticated) { window.location.replace('auth.html'); }
+      } catch(e) { window.location.replace('auth.html'); }
+    })();
+  </script>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">빅분기 <span class="logo-sub">실기 모의고사</span></div>
+    <div class="header-actions">
+      <button class="btn btn-ghost btn-sm" id="logout-btn">로그아웃</button>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="lobby-main">
+  <div class="container" style="padding-top: 2rem; padding-bottom: 3rem;">
+    <div class="lobby-layout">
+      <!-- Left: Exam Cards Grid -->
+      <div class="lobby-cards">
+        <div class="grid grid-2" id="exam-grid">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Right: Sidebar Stats -->
+      <div class="lobby-sidebar">
+        <div class="lobby-stat-card">
+          <h3>전체 통계</h3>
+          <div class="lobby-stat-row">
+            <span>전체 회차</span>
+            <span id="stat-total-exams">10</span>
+          </div>
+          <div class="lobby-stat-row">
+            <span>활성 회차</span>
+            <span id="stat-active-exams">1</span>
+          </div>
+          <div class="lobby-stat-row">
+            <span>회차당 문항</span>
+            <span id="stat-total-questions">6~8</span>
+          </div>
+          <div class="lobby-stat-row">
+            <span>합격선</span>
+            <span>60점 / 100점</span>
+          </div>
+          <div class="lobby-stat-row">
+            <span>제한 시간</span>
+            <span>180분</span>
+          </div>
+        </div>
+        <div class="lobby-stat-card">
+          <h3>내 점수 기록<br><small style="font-weight:400; color:#7a8290;">(Local Storage)</small></h3>
+          <div class="lobby-stat-row">
+            <span>학습 완료 문항</span>
+            <span id="stat-viewed">0</span>
+          </div>
+          <div class="lobby-stat-row">
+            <span>진행률</span>
+            <span id="stat-progress">0%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </main>
+
+  <footer class="footer">&copy; 2026 빅데이터 분석기사 실기 모의고사. All rights reserved.</footer>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="js/colab-notice.js"></script>
+  <script src="js/lobby.js"></script>
+  <script src="js/protection.js"></script>
+</body>
+</html>

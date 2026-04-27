@@ -4,313 +4,39 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>빅데이터 분석기사 실기 모의고사</title>
-  <meta name="description" content="빅데이터 분석기사 실기 모의고사 - 도서 구매자 전용 학습 서비스 (Python·R 양 트랙)">
-  <meta name="robots" content="noindex, nofollow">
-  <meta property="og:title" content="빅데이터 분석기사 실기 모의고사">
-  <meta property="og:description" content="도서 구매자 전용 학습 서비스 — Python·R 양 트랙 운영">
-  <meta property="og:type" content="website">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
+  <meta name="description" content="빅데이터 분석기사 자격증 모의고사 - 도서 구매자 전용 학습 서비스">
   <style>
-    :root {
-      --navy: #112342;
-      --navy-deep: #0b1c3d;
-      --orange: #e8621a;
-      --orange-deep: #d35400;
-      --text: #e8ecf5;
-      --muted: #a0b0c8;
-      --card: #ffffff;
-      --card-text: #152345;
-      --card-muted: #5a6577;
-      --border: #d0d5dd;
-    }
-    * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; }
-    body {
-      font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
-      background: var(--navy);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      line-height: 1.55;
-    }
-    .header {
-      padding: 1.25rem 1.5rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .logo {
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      font-size: 1rem;
-      color: var(--text);
-    }
-    .logo .logo-sub {
-      color: var(--orange);
-      margin-left: 0.5rem;
-    }
-    main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem 1.5rem;
-    }
-    .track-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.4rem 0.875rem;
-      border-radius: 9999px;
-      background: rgba(232, 98, 26, 0.15);
-      color: var(--orange);
-      font-weight: 600;
-      font-size: 0.8125rem;
-      letter-spacing: 0.04em;
-      margin-bottom: 1.5rem;
-    }
-    .track-badge .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--orange);
-    }
-    .card {
-      background: var(--card);
-      color: var(--card-text);
-      border-radius: 16px;
-      padding: 2.5rem 2rem;
-      max-width: 480px;
-      width: 100%;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.3);
-      text-align: center;
-    }
-    h1 {
-      font-size: 1.5rem;
-      margin: 0 0 0.75rem;
-      color: var(--card-text);
-      line-height: 1.3;
-    }
-    .lede {
-      color: var(--card-muted);
-      margin: 0 0 1.5rem;
-      font-size: 0.9375rem;
-    }
-    .info-box {
-      background: #f7f9fc;
-      border: 1px solid #e3e8ef;
-      border-radius: 10px;
-      padding: 1rem 1.125rem;
-      text-align: left;
-      margin: 1.5rem 0 0;
-      font-size: 0.875rem;
-      color: var(--card-muted);
-    }
-    .info-box strong {
-      color: var(--card-text);
-      display: block;
-      margin-bottom: 0.25rem;
-    }
-    .actions {
-      display: flex;
-      flex-direction: column;
-      gap: 0.625rem;
-      margin-top: 1.5rem;
-    }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.875rem 1.25rem;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 0.9375rem;
-      cursor: pointer;
-      border: 1px solid transparent;
-      transition: all 0.15s ease;
-      font-family: inherit;
-    }
-    .btn-primary {
-      background: var(--orange);
-      color: #fff;
-    }
-    .btn-primary:hover { background: var(--orange-deep); }
-    .btn-secondary {
-      background: #fff;
-      color: var(--card-text);
-      border-color: var(--border);
-    }
-    .btn-secondary:hover { background: #f7f9fc; }
-    footer {
-      text-align: center;
-      padding: 1.25rem;
-      font-size: 0.8125rem;
-      color: var(--muted);
-    }
-    .toast {
-      position: fixed;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%) translateY(100px);
-      background: rgba(0,0,0,0.85);
-      color: #fff;
-      padding: 0.75rem 1.25rem;
-      border-radius: 8px;
-      font-size: 0.875rem;
-      opacity: 0;
-      transition: all 0.25s ease;
-      pointer-events: none;
-      z-index: 1000;
-    }
-    .toast.show {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
-    }
-    .pc-only { display: block; }
-    .mobile-only { display: none; }
-    @media (max-width: 767px) {
-      .pc-only { display: none; }
-      .mobile-only { display: block; }
-      .card { padding: 2rem 1.5rem; }
-      h1 { font-size: 1.25rem; }
-    }
+    body { margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: system-ui, sans-serif; background: #fbf8ff; color: #31323b; }
+    .loading { text-align: center; }
+    .spinner { width: 32px; height: 32px; border: 3px solid #ddd; border-top-color: #4f5d8c; border-radius: 50%; animation: spin 0.6s linear infinite; margin: 0 auto 1rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
-</head>
-<body>
-  <header class="header">
-    <div class="logo">빅분기 <span class="logo-sub">실기 모의고사</span></div>
-  </header>
-
-  <main>
-    <div class="track-badge" id="track-badge">
-      <span class="dot"></span>
-      <span id="track-label">트랙 확인 중...</span>
-    </div>
-
-    <div class="card">
-      <!-- Mobile content -->
-      <div class="mobile-only">
-        <h1>PC 환경에<br>최적화된 서비스입니다</h1>
-        <p class="lede">
-          원활한 실습을 위해<br>PC 브라우저에서 접속해 주세요.
-        </p>
-        <div class="actions">
-          <button class="btn btn-primary" id="copy-link-btn">URL 복사하기</button>
-          <button class="btn btn-secondary" id="share-btn">공유하기</button>
-        </div>
-        <div class="info-box">
-          <strong>안내</strong>
-          모의고사 사이트는 현재 구축 중이며, 도서 발간 일정에 맞춰 정상 오픈됩니다.
-        </div>
-      </div>
-
-      <!-- PC content -->
-      <div class="pc-only">
-        <h1>모의고사 사이트<br>구축 중입니다</h1>
-        <p class="lede">
-          도서 발간 일정에 맞춰 정상 오픈됩니다.<br>
-          오픈 후 본 페이지에서 인증코드를 입력하여<br>
-          모의고사를 진행하실 수 있습니다.
-        </p>
-        <div class="info-box">
-          <strong>학습자 흐름 안내</strong>
-          ① 도서 인증코드 입력<br>
-          ② 회차·유형 선택<br>
-          ③ 실습 환경 진입<br>
-          ④ 자가채점 및 해설 확인
-        </div>
-      </div>
-    </div>
-  </main>
-
-  <footer>
-    &copy; 2026 빅데이터 분석기사 실기 모의고사. All rights reserved.
-  </footer>
-
-  <div class="toast" id="toast"></div>
-
   <script>
     (function () {
-      // Track detection from URL param
-      var params = new URLSearchParams(window.location.search);
-      var track = params.get('track');
-      var trackLabel = document.getElementById('track-label');
+      var isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent)
+        || window.innerWidth < 768;
 
-      if (track === 'python') {
-        trackLabel.textContent = 'Python 트랙';
-      } else if (track === 'r') {
-        trackLabel.textContent = 'R 트랙';
-      } else {
-        trackLabel.textContent = '도서 구매자 전용';
+      if (isMobile) {
+        window.location.replace('mobile.html');
+        return;
       }
 
-      // Save track to sessionStorage so it persists during navigation
-      if (track === 'python' || track === 'r') {
-        try {
-          sessionStorage.setItem('bigdata_track', track);
-        } catch (e) {}
-      }
+      try {
+        var auth = JSON.parse(localStorage.getItem('bigdata_auth'));
+        if (auth && auth.authenticated) {
+          window.location.replace('lobby.html');
+          return;
+        }
+      } catch (e) {}
 
-      // Toast helper
-      function showToast(msg) {
-        var toast = document.getElementById('toast');
-        toast.textContent = msg;
-        toast.classList.add('show');
-        setTimeout(function () { toast.classList.remove('show'); }, 2000);
-      }
-
-      // Copy URL (mobile only)
-      var copyBtn = document.getElementById('copy-link-btn');
-      if (copyBtn) {
-        copyBtn.addEventListener('click', function () {
-          var url = window.location.href;
-          if (navigator.clipboard) {
-            navigator.clipboard.writeText(url).then(function () {
-              showToast('링크가 복사되었습니다');
-            }).catch(function () {
-              fallbackCopy(url);
-            });
-          } else {
-            fallbackCopy(url);
-          }
-        });
-      }
-
-      function fallbackCopy(text) {
-        var ta = document.createElement('textarea');
-        ta.value = text;
-        document.body.appendChild(ta);
-        ta.select();
-        try { document.execCommand('copy'); showToast('링크가 복사되었습니다'); }
-        catch (e) { showToast('링크 복사에 실패했습니다'); }
-        document.body.removeChild(ta);
-      }
-
-      // Share API (mobile only)
-      var shareBtn = document.getElementById('share-btn');
-      if (shareBtn) {
-        shareBtn.addEventListener('click', function () {
-          var url = window.location.href;
-          var title = '빅데이터 분석기사 실기 모의고사';
-          var text = (track === 'r' ? 'R 트랙' : track === 'python' ? 'Python 트랙' : '') + ' - PC에서 접속해 주세요.';
-          if (navigator.share) {
-            navigator.share({ title: title, text: text, url: url }).catch(function () {});
-          } else {
-            if (navigator.clipboard) {
-              navigator.clipboard.writeText(url).then(function () {
-                showToast('링크가 복사되었습니다');
-              });
-            }
-          }
-        });
-      }
+      window.location.replace('auth.html');
     })();
   </script>
+</head>
+<body>
+  <div class="loading">
+    <div class="spinner"></div>
+    <p>로딩 중...</p>
+  </div>
 </body>
 </html>

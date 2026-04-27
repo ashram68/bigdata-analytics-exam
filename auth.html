@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>빅분기 실기 모의고사 - 도서 인증</title>
+  <meta name="description" content="빅데이터 분석기사 실기 모의고사 서비스 - 도서 인증 후 학습을 시작하세요.">
+  <link rel="icon" type="image/jpeg" href="assets/favicon.jpg">
+  <meta property="og:title" content="빅데이터 분석기사 실기 모의고사">
+  <meta property="og:description" content="빅데이터 분석기사 자격증 모의고사 - 도서 구매자 전용 학습 서비스">
+  <meta property="og:image" content="assets/og-image.jpg">
+  <meta property="og:type" content="website">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- FOUC prevention: apply theme before paint -->
+  <link rel="stylesheet" href="css/theme-a.css">
+  <link rel="stylesheet" href="css/base.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header" style="justify-content: center;">
+    <div class="logo">빅분기 <span class="logo-sub">실기 모의고사</span></div>
+  </header>
+
+  <!-- Main Content -->
+  <main style="min-height: calc(100vh - 57px); display: flex; align-items: center; justify-content: center;">
+    <div class="container-narrow text-center">
+      <div class="animate-in">
+        <!-- Auth Card (white background) -->
+        <div class="auth-card">
+          <h1 class="auth-card-title">빅데이터 분석기사 실기<br>도서 구매 인증</h1>
+          <p class="auth-card-desc">
+            도서에 인쇄된 인증코드(6자리)를 입력하세요.
+          </p>
+
+          <!-- OTP Input -->
+          <form id="auth-form" autocomplete="off">
+            <div class="flex flex-center gap-sm" id="otp-container" style="margin-bottom: 0.5rem;">
+              <input type="text" class="otp-input" maxlength="1" inputmode="text" autocomplete="off" data-index="0" aria-label="인증코드 1자리">
+              <input type="text" class="otp-input" maxlength="1" inputmode="text" autocomplete="off" data-index="1" aria-label="인증코드 2자리">
+              <input type="text" class="otp-input" maxlength="1" inputmode="text" autocomplete="off" data-index="2" aria-label="인증코드 3자리">
+              <div style="width: 12px; display: flex; align-items: center; justify-content: center; color: #9aa0a8; font-size: 1.25rem; font-weight: 700;">-</div>
+              <input type="text" class="otp-input" maxlength="1" inputmode="text" autocomplete="off" data-index="3" aria-label="인증코드 4자리">
+              <input type="text" class="otp-input" maxlength="1" inputmode="text" autocomplete="off" data-index="4" aria-label="인증코드 5자리">
+              <input type="text" class="otp-input" maxlength="1" inputmode="text" autocomplete="off" data-index="5" aria-label="인증코드 6자리">
+            </div>
+
+            <p class="text-xs" style="margin-bottom: 1.5rem; color: #7a8290;">영문 대문자 + 숫자 조합</p>
+
+            <div class="error-msg" id="error-msg">인증 코드가 올바르지 않습니다.</div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-full" id="verify-btn" disabled style="margin-top: 1rem;">
+              인증하기
+            </button>
+
+            <p class="text-xs" id="lockout-msg" style="margin-top: 0.75rem; display: none; color: #7a8290;"></p>
+          </form>
+        </div>
+
+        <!-- Help text (navy background) -->
+        <div style="margin-top: 2.5rem;">
+          <p class="text-sm text-muted">인증에 어려움이 있으시면 고객센터로 문의해 주세요.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">&copy; 2026 빅데이터 분석기사 실기 모의고사.<br>All rights reserved.</footer>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/protection.js"></script>
+</body>
+</html>
