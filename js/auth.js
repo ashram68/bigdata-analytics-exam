@@ -1,5 +1,7 @@
 /**
- * OTP Authentication: 6-char code → SHA-256 hash → compare against codes.json
+ * OTP Authentication (page-challenge mode):
+ *   페이지 챌린지: 랜덤 페이지 1개 표시 → 사용자가 해당 페이지 인쇄 코드 입력
+ *   → SHA-256 해시 → page_codes[currentPage] 와 일치 검사
  */
 (function () {
   const inputs = document.querySelectorAll('.otp-input');
@@ -7,15 +9,27 @@
   const verifyBtn = document.getElementById('verify-btn');
   const errorMsg = document.getElementById('error-msg');
   const lockoutMsg = document.getElementById('lockout-msg');
+  const pageNumberEl = document.getElementById('page-number');
 
   let failCount = 0;
   let lockUntil = 0;
   let codesData = null;
+  let currentPage = null;
 
-  // Load codes on init
-  fetch('data/codes.json')
+  // Load codes on init + pick random page challenge
+  // (cache-buster: codes.json schema changed from `codes[]` → `page_codes{}`)
+  fetch('data/codes.json?v=2')
     .then(r => r.json())
-    .then(data => { codesData = data; })
+    .then(data => {
+      codesData = data;
+      const pages = Object.keys(data.page_codes || {});
+      if (pages.length === 0) {
+        console.error('codes.json has no page_codes');
+        return;
+      }
+      currentPage = pages[Math.floor(Math.random() * pages.length)];
+      if (pageNumberEl) pageNumberEl.textContent = currentPage;
+    })
     .catch(() => { console.error('Failed to load codes.json'); });
 
   // --- OTP Input UX ---
@@ -103,7 +117,8 @@
     verifyBtn.textContent = '확인 중...';
 
     const hash = await sha256(code);
-    const isValid = codesData.codes.includes(hash);
+    const expectedHash = codesData.page_codes && codesData.page_codes[currentPage];
+    const isValid = !!expectedHash && hash === expectedHash;
 
     if (isValid) {
       // Success
