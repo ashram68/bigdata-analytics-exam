@@ -48,10 +48,11 @@
     const grid = document.getElementById('exam-grid');
 
     grid.innerHTML = exams.map(exam => {
+      const titleHtml = exam.subtitle ? `${exam.title}: ${exam.subtitle}` : exam.title;
       if (!exam.enabled) {
         return `
           <div class="lobby-card lobby-card-disabled">
-            <h3 class="lobby-card-title">${exam.title}: ${exam.subtitle}</h3>
+            <h3 class="lobby-card-title">${titleHtml}</h3>
             <p class="lobby-card-desc">${(exam.description || '').replace(/\n/g, '<br>')}</p>
             <div class="lobby-card-buttons">
               <button class="lobby-btn lobby-btn-outline" disabled>준비 중</button>
@@ -63,7 +64,7 @@
       const types = exam.types || {};
       return `
         <div class="lobby-card">
-          <h3 class="lobby-card-title">${exam.title}: ${exam.subtitle}</h3>
+          <h3 class="lobby-card-title">${titleHtml}</h3>
           <p class="lobby-card-desc">${(exam.description || '').replace(/\n/g, '<br>')}</p>
           <div class="lobby-card-buttons">
             ${typeButton('type1', types.type1, exam.id)}

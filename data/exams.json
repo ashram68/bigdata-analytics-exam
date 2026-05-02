@@ -9,9 +9,9 @@
   "exams": [
     {
       "id": "exam-01",
-      "title": "1회차 모의고사",
-      "subtitle": "Titanic 데이터 기반 (seaborn 내장)",
-      "description": "결측치 처리, 그룹 집계, RandomForest 분류, t-검정, 로지스틱 회귀.\n작업형 1·2·3유형 분리 풀이.",
+      "title": "1회 빅데이터 분석기사 파이썬 작업형 모의고사",
+      "subtitle": "",
+      "description": "작업형 1·2·3유형 분리 풀이 (총 6문항 · 100점 · 180분)",
       "questionCount": 6,
       "enabled": true,
       "types": {
