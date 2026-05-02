@@ -376,7 +376,8 @@
       `;
     }
 
-    const colabUrl = 'https://colab.research.google.com/github/ashram68/bigdata-analytics-exam/blob/main/data/exam-01/exam-01_type1.ipynb';
+    const track = q.track || 'type1';
+    const colabUrl = `https://colab.research.google.com/github/ashram68/bigdata-analytics-exam/blob/main/data/${examId}/${examId}_${track}.ipynb`;
     const actionsHtml = `
       <div class="flex flex-wrap gap-sm mt-lg">
         <a href="${colabUrl}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" onclick="event.preventDefault(); if(window.openColabWithNotice){openColabWithNotice(this.href);}else{window.open(this.href,'_blank','noopener');} return false;">
@@ -410,7 +411,7 @@
 
         <div class="tip-box mt-lg">
           <span class="tip-icon">📌</span>
-          <span>이 코드는 pandas, numpy, matplotlib를 임포트하고 titanic.csv 데이터를 df 변수로 로드합니다. 모든 문항에서 이 변수들을 사용합니다.</span>
+          <span>이 코드는 seaborn, pandas, numpy 를 임포트하고 <code>sns.load_dataset('titanic')</code> 으로 Titanic 데이터를 <code>df</code> 변수로 로드합니다. 모든 문항에서 이 변수를 사용합니다.</span>
         </div>
 
         <div style="margin-top: 2rem;">

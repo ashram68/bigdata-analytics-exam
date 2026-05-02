@@ -10,8 +10,8 @@
     {
       "id": "exam-01",
       "title": "1회차 모의고사",
-      "subtitle": "Titanic 데이터 기반",
-      "description": "결측치 처리, 모델링, 가설 검정.\n작업형 1·2·3유형 분리 풀이.",
+      "subtitle": "Titanic 데이터 기반 (seaborn 내장)",
+      "description": "결측치 처리, 그룹 집계, RandomForest 분류, t-검정, 로지스틱 회귀.\n작업형 1·2·3유형 분리 풀이.",
       "questionCount": 6,
       "enabled": true,
       "types": {
@@ -31,7 +31,7 @@
           "score": 40,
           "submitMethod": "csv",
           "colabUrl": "https://colab.research.google.com/github/ashram68/bigdata-analytics-exam/blob/main/data/exam-01/exam-01_type2.ipynb",
-          "enabled": false
+          "enabled": true
         },
         "type3": {
           "name": "3유형",
@@ -40,7 +40,7 @@
           "score": 30,
           "submitMethod": "print",
           "colabUrl": "https://colab.research.google.com/github/ashram68/bigdata-analytics-exam/blob/main/data/exam-01/exam-01_type3.ipynb",
-          "enabled": false
+          "enabled": true
         }
       },
       "lectureUrl": "#"

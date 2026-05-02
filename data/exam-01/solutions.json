@@ -2,97 +2,124 @@
   "examId": "exam-01",
   "title": "1회차 모의고사 - Titanic 데이터 기반",
   "subtitle": "작업형 1·2·3유형 정답 및 해설",
-  "dataset": "titanic_1.csv",
-  "datasetUrl": "https://raw.githubusercontent.com/ashram68/bigdata-analytics-exam/main/data/exam-01/titanic_1.csv",
-  "prerequisiteCode": "import pandas as pd\nimport numpy as np\nimport warnings\nwarnings.filterwarnings('ignore')\n\ndf = pd.read_csv('https://raw.githubusercontent.com/ashram68/bigdata-analytics-exam/main/data/exam-01/titanic_1.csv')",
+  "dataset": "seaborn.load_dataset('titanic')",
+  "datasetSource": "seaborn 내장 (Kaggle 검증 동일 데이터)",
+  "prerequisiteCode": "import seaborn as sns\nimport pandas as pd\nimport numpy as np\nimport warnings\nwarnings.filterwarnings('ignore')\n\n# 1회차 공통 데이터 — seaborn 내장 Titanic (891행 × 15열)\ndf = sns.load_dataset('titanic')\nprint(df.shape)              # (891, 15)\nprint(df.isnull().sum())     # age(177), embarked(2), deck(688)",
   "questions": [
     {
       "id": 1,
       "type": "code",
+      "track": "type1",
       "category": "1유형 · 데이터 전처리",
-      "title": "Age 결측치 중위수 대체 후 생존자 평균 나이",
+      "title": "결측치 처리와 조건부 카운트",
       "score": 10,
       "problem": [
-        "Titanic 데이터에서 Age 변수의 결측치를 Age의 중위수(median) 로 대체하시오.",
-        "대체 후, 생존자(Survived = 1) 의 평균 나이를 구하시오.",
-        "결과는 소수 둘째 자리까지 반올림하여 출력하시오."
+        "Titanic 데이터에서 age 컬럼의 결측치를 age 컬럼의 중앙값(median)으로 대체하시오.",
+        "대체 후, 나이가 30세 이상인 승객의 수를 정수형(int) 으로 출력하시오."
       ],
       "choices": null,
       "answer": null,
-      "answerDisplay": "28.29",
-      "code": "# 데이터 로드\ndf = pd.read_csv('titanic_1.csv')\n\n# Age 변수의 중위수 계산 (결측치 제외)\nage_median = df['Age'].median()\n\n# Age 결측치를 중위수로 대체\ndf['Age'] = df['Age'].fillna(age_median)\n\n# 생존자(Survived == 1) 의 평균 나이 계산\nresult = df[df['Survived'] == 1]['Age'].mean()\n\n# 소수 둘째 자리까지 반올림 후 출력\nprint(round(result, 2))   # 28.29",
-      "explanation": "1) median() 함수는 결측치를 제외하고 중위수를 계산합니다. (skipna=True 기본값)\n2) fillna(age_median) 으로 결측치 177건을 중위수 28.0 으로 일괄 대체합니다.\n3) Survived == 1 조건으로 생존자 342명을 필터링한 후 mean() 으로 평균 나이를 구합니다.\n4) round(result, 2) 로 소수 둘째 자리까지 반올림하면 28.29 가 출력됩니다.",
-      "tip": "median() 과 mean() 모두 결측치는 자동 제외되지만, 실수 방지를 위해 fillna() 로 명시적으로 대체하는 것이 안전합니다."
+      "answerDisplay": "330",
+      "code": "import seaborn as sns\ndf = sns.load_dataset('titanic')\n\n# ① age 컬럼의 중앙값 계산 (결측 제외)\nmedian_age = df['age'].median()       # 28.0\n\n# ② 결측치를 중앙값으로 대체\ndf['age'] = df['age'].fillna(median_age)\n\n# ③ 30세 이상 승객 수 (boolean sum 은 numpy.int64 반환)\nanswer = (df['age'] >= 30).sum()\n\n# ④ 정수형(int) 으로 명시적 변환 후 출력\nprint(int(answer))   # 330",
+      "explanation": "1) age 의 중앙값은 28.0 이며, 결측 177건을 28세로 채워도 30세 이상 인원에는 영향이 없습니다 (28 < 30). 2) (df['age']>=30).sum() 은 numpy.int64 를 반환하므로 채점 호환을 위해 int() 변환을 권장합니다. 3) 최종 결과는 330 명입니다.",
+      "tip": "fillna 적용 시 df['age'] = df['age'].fillna(...) 으로 재할당하는 방식을 권장합니다. chained inplace 방식 (예: df['age'].fillna(..., inplace=True)) 은 pandas 3.x 에서 경고가 발생하거나 동작이 변경될 가능성이 있습니다."
     },
     {
       "id": 2,
       "type": "code",
+      "track": "type1",
       "category": "1유형 · 데이터 전처리",
-      "title": "준비 중",
+      "title": "그룹 집계 및 차이 계산",
       "score": 10,
-      "problem": ["원고 도착 후 활성화됩니다."],
+      "problem": [
+        "Titanic 데이터에서 pclass 별 fare(요금) 의 평균을 구하시오.",
+        "(1등석의 평균 fare) - (3등석의 평균 fare) 의 차이를 계산하고, 이 값을 버림하여 정수로 출력하시오."
+      ],
       "choices": null,
       "answer": null,
-      "answerDisplay": "-",
-      "code": "# 준비 중",
-      "explanation": "1유형 2번 문제는 발주처 원고 수신 후 적재됩니다.",
-      "tip": null
+      "answerDisplay": "70",
+      "code": "import seaborn as sns\nimport numpy as np\ndf = sns.load_dataset('titanic')\n\n# ① pclass 별 fare 평균\nfare_by_class = df.groupby('pclass')['fare'].mean()\n# pclass\n# 1    84.154687\n# 2    20.662183\n# 3    13.675550\n\n# ② 1등석 평균 - 3등석 평균\ndiff = fare_by_class[1] - fare_by_class[3]    # 70.4791\n\n# ③ 버림하여 정수로 변환\nanswer = int(diff)        # 또는 np.floor(diff).astype(int)\nprint(answer)   # 70",
+      "explanation": "1등석(84.15)과 3등석(13.68) 의 fare 평균 차이는 약 70.48 이며 버림 처리 후 70 입니다. 이는 1등석 요금이 3등석의 약 6배라는 뜻으로, Titanic 데이터에서 좌석 등급이 사회·경제적 지위(SES) 와 강하게 연결됨을 보여줍니다.",
+      "tip": "버림 vs 반올림 vs 올림 — int(70.48)=70, round(70.48)=70, np.ceil(70.48)=71. 음수에서는 int(-3.5)=-3 (0 방향 자르기), np.floor(-3.5)=-4 (항상 더 작은 정수) 로 다르니 주의."
     },
     {
       "id": 3,
       "type": "code",
+      "track": "type1",
       "category": "1유형 · 데이터 전처리",
-      "title": "준비 중",
+      "title": "분위수 기반 필터링과 합계",
       "score": 10,
-      "problem": ["원고 도착 후 활성화됩니다."],
+      "problem": [
+        "Titanic 데이터에서 fare 의 상위 10% 임계값(즉, 90% 분위수) 을 계산하시오.",
+        "fare 가 그 임계값 이상인 승객들 중 생존자(survived = 1) 의 수를 정수로 출력하시오."
+      ],
       "choices": null,
       "answer": null,
-      "answerDisplay": "-",
-      "code": "# 준비 중",
-      "explanation": "1유형 3번 문제는 발주처 원고 수신 후 적재됩니다.",
-      "tip": null
+      "answerDisplay": "69",
+      "code": "import seaborn as sns\ndf = sns.load_dataset('titanic')\n\n# ① 상위 10% 임계값 = 90% 분위수\nthreshold = df['fare'].quantile(0.9)    # 77.9583\n\n# ② fare 가 임계값 이상인 행 필터링\nhigh_fare = df[df['fare'] >= threshold]    # 90명\n\n# ③ survived == 1 조건으로 추가 필터링하여 카운트\nanswer = len(high_fare[high_fare['survived'] == 1])\nprint(answer)   # 69\n\n# 동일 결과를 내는 다른 표현:\n# answer = high_fare['survived'].sum()                              # boolean sum\n# answer = ((df['fare'] >= threshold) & (df['survived']==1)).sum()  # 한 행 처리",
+      "explanation": "fare 상위 10% 임계값은 77.96 이며, 이 이상 지불한 90명 중 69명(76.7%) 이 생존했습니다. 전체 생존율(약 38%) 의 두 배 수준입니다. 이는 고가 좌석(주로 1등석) 승객이 구명보트 접근 우선권 등 혜택을 받았음을 시사합니다.",
+      "tip": "여러 필터링 방식 모두 결과는 동일하지만, 시험에서는 가독성 좋은 단계별 필터링(① len(high_fare[high_fare['survived']==1])) 이 안전합니다."
     },
     {
       "id": 4,
       "type": "code",
+      "track": "type2",
       "category": "2유형 · ML 모델링 (CSV 제출)",
-      "title": "준비 중",
+      "title": "Titanic 생존자 예측 (이진 분류)",
       "score": 40,
-      "problem": ["원고 도착 후 활성화됩니다.", "예측 결과를 CSV 파일로 제출하는 형식입니다."],
+      "problem": [
+        "Titanic 데이터를 사용하여 승객의 생존 여부(survived) 를 예측하는 분류 모델을 만드시오.",
+        "결측치 처리: age 는 중앙값, embarked 는 최빈값, fare 는 중앙값으로 대체.",
+        "사용 변수: ['pclass', 'sex', 'age', 'sibsp', 'parch', 'fare', 'embarked'].",
+        "범주형(sex, embarked) 은 pd.get_dummies(drop_first=True) 로 원-핫 인코딩.",
+        "8:2 분할 (random_state=42, stratify=y) 후 RandomForest(n_estimators=100, random_state=42) 로 학습.",
+        "예측 확률(predict_proba[:, 1]) 을 result.csv 로 저장. 평가지표: ROC-AUC ≥ 0.80."
+      ],
       "choices": null,
       "answer": null,
-      "answerDisplay": "-",
-      "code": "# 준비 중",
-      "explanation": "2유형은 분류/회귀 모델을 학습하여 X_test에 대한 예측 결과를 CSV로 제출합니다. 발주처 원고 수신 후 적재됩니다.",
-      "tip": null
+      "answerDisplay": "검증 ROC-AUC ≈ 0.83 (목표 0.80 이상 통과)",
+      "code": "import pandas as pd\nimport seaborn as sns\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.metrics import roc_auc_score\n\n# STEP 1. 데이터 로드 — seaborn 내장 Titanic\ndf = sns.load_dataset('titanic')\n\n# STEP 2~3. 결측치 처리\ndf['age']      = df['age'].fillna(df['age'].median())\ndf['embarked'] = df['embarked'].fillna(df['embarked'].mode()[0])\ndf['fare']     = df['fare'].fillna(df['fare'].median())\n\n# STEP 4. 변수 선택\nfeatures = ['pclass', 'sex', 'age', 'sibsp', 'parch', 'fare', 'embarked']\nX = df[features].copy()\ny = df['survived']\n\n# STEP 5. 범주형 인코딩\nX = pd.get_dummies(X, columns=['sex', 'embarked'], drop_first=True)\n\n# STEP 6. 학습/검증 분할 (8:2, stratify=y, random_state=42)\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.2, random_state=42, stratify=y\n)\n\n# STEP 7. 모델 학습\nrf = RandomForestClassifier(n_estimators=100, random_state=42)\nrf.fit(X_train, y_train)\n\n# STEP 8. 평가용 예측 (양성 클래스 확률)\nproba = rf.predict_proba(X_test)[:, 1]\n\n# STEP 9. result.csv 저장 (제출용)\nresult = pd.DataFrame({'pred': proba})\nresult.to_csv('result.csv', index=False)\n\n# (모의고사 한정) 검증 AUC 출력\nauc = roc_auc_score(y_test, proba)\nprint(f'검증 ROC-AUC: {auc:.4f}')    # 약 0.8333",
+      "explanation": "1) 표준 9단계 흐름(로드→탐색→결측처리→변수선택→인코딩→분할→학습→예측→CSV저장) 으로 풀이합니다. 2) RandomForest 기본값으로 AUC 0.83 이 나오며, 이는 별도 튜닝 없이도 합격선(0.80) 을 안정적으로 넘는 수준입니다. 3) 변수 중요도는 sex_male, fare, age 순으로 EDA 통찰(여성·고가요금·청년층 우대) 과 일치합니다.",
+      "tip": "실전 제출 시 ① stratify=y 로 클래스 비율 유지, ② AUC 평가에는 predict_proba(X_test)[:, 1] 의 확률 제출 (predict() 의 0/1 결과로 AUC 계산하면 점수 하락), ③ get_dummies(drop_first=True) 로 다중공선성 방지, ④ to_csv('result.csv', index=False) 가 필수."
     },
     {
       "id": 5,
       "type": "code",
+      "track": "type3",
       "category": "3유형 · 통계 분석",
-      "title": "준비 중",
+      "title": "단일표본 t-검정 (One-sample t-test)",
       "score": 15,
-      "problem": ["원고 도착 후 활성화됩니다.", "t-검정 또는 회귀계수 등 통계 검정 문제입니다."],
+      "problem": [
+        "Titanic 승객의 평균 나이가 25세와 다른지 단일표본 t-검정을 수행하시오.",
+        "age 결측치는 제거 후 사용, 양측검정, 유의수준 α = 0.05.",
+        "출력: ① 표본 평균 (소수 2자리), ② t-통계량 (소수 2자리), ③ p-value (소수 4자리), ④ 귀무가설 채택/기각."
+      ],
       "choices": null,
       "answer": null,
-      "answerDisplay": "-",
-      "code": "# 준비 중",
-      "explanation": "3유형은 가설검정·회귀분석·오즈비 등 통계 분석 문제이며 소문항 단위로 구성됩니다.",
-      "tip": null
+      "answerDisplay": "표본평균 29.70 / t = 8.64 / p ≈ 0.0000 / 귀무가설 기각",
+      "code": "import seaborn as sns\nimport numpy as np\nfrom scipy import stats\n\ndf = sns.load_dataset('titanic')\n\n# ① 결측치 제거\nages = df['age'].dropna()       # n = 714\n\n# ② 단일표본 t-검정 (양측검정)\nt_stat, p_value = stats.ttest_1samp(ages, popmean=25)\n\n# ③ 추가: 효과 크기 (Cohen's d)\nmean_age = ages.mean()                              # 29.6991\nstd_age  = ages.std(ddof=1)                         # 14.5265\ncohens_d = (mean_age - 25) / std_age                # 0.3235\n\n# 결과 출력\nprint(f'표본 평균: {mean_age:.2f}')        # 29.70\nprint(f't-통계량 : {t_stat:.2f}')          # 8.64\nprint(f'p-value  : {p_value:.4f}')         # 0.0000\nprint(f\"Cohen's d: {cohens_d:.4f}\")        # 0.3235\n\n# ④ 가설 판단\nalpha = 0.05\nif p_value < alpha:\n    print('결론: 귀무가설 기각 → 평균 나이는 25세와 다름')\nelse:\n    print('결론: 귀무가설 채택 → 평균 나이가 25세와 다르다고 할 수 없음')",
+      "explanation": "표본 평균 29.70 세는 H₀ 의 25 세보다 약 4.7 세 큽니다. t = 8.64 로 매우 큰 값이며 p < 0.0001 로 α=0.05 보다 훨씬 작아 귀무가설을 기각합니다. Cohen's d = 0.32 는 작은 효과와 중간 효과 사이로, 통계적으로 유의할 뿐 아니라 실질적으로도 의미 있는 차이입니다.",
+      "tip": "p-value 와 효과 크기를 함께 보세요 — p-value 는 유의성을, Cohen's d 는 실질적 차이의 크기를 측정합니다. 표본이 크면 작은 차이도 p<0.05 로 나오므로 효과 크기 보고가 필수입니다 (0.2 작음, 0.5 중간, 0.8 큼)."
     },
     {
       "id": 6,
       "type": "code",
+      "track": "type3",
       "category": "3유형 · 통계 분석",
-      "title": "준비 중",
+      "title": "로지스틱 회귀와 오즈비(Odds Ratio) 해석",
       "score": 15,
-      "problem": ["원고 도착 후 활성화됩니다."],
+      "problem": [
+        "Titanic 데이터에서 survived 를 종속변수로, pclass / sex(0=female, 1=male) / age / fare 를 독립변수로 하는 로지스틱 회귀 모델을 적합하시오.",
+        "각 변수의 오즈비(OR = exp(coef)) 를 구하고, sex_male 의 오즈비를 해석하시오.",
+        "age 결측치는 중앙값으로 대체.",
+        "출력: ① sex_male 회귀계수 (소수 4자리), ② sex_male 오즈비 (소수 4자리), ③ pclass 오즈비 (소수 4자리), ④ '남성의 생존 odds 는 여성의 약 ___ 배' 해석."
+      ],
       "choices": null,
       "answer": null,
-      "answerDisplay": "-",
-      "code": "# 준비 중",
-      "explanation": "3유형 2번 문제는 발주처 원고 수신 후 적재됩니다.",
-      "tip": null
+      "answerDisplay": "coef(sex_male) = -2.5131 / OR(sex_male) = 0.0810 / OR(pclass) = 0.3277 / 남성의 odds = 여성×0.0810",
+      "code": "import seaborn as sns\nimport numpy as np\nimport pandas as pd\nfrom sklearn.linear_model import LogisticRegression\n\ndf = sns.load_dataset('titanic')\n\n# ① age 결측치를 중앙값으로 대체\ndf['age'] = df['age'].fillna(df['age'].median())\n\n# ② sex 를 이진 변수로 변환 (male=1, female=0)\ndf['sex_male'] = (df['sex'] == 'male').astype(int)\n\n# ③ 독립변수 X, 종속변수 y 설정\nX = df[['pclass', 'sex_male', 'age', 'fare']]\ny = df['survived']\n\n# ④ 로지스틱 회귀 적합\nlr = LogisticRegression(max_iter=1000, random_state=42)\nlr.fit(X, y)\n\n# ⑤ 회귀계수와 오즈비 출력\nprint('=== 회귀계수 (β) ===')\nfor col, c in zip(X.columns, lr.coef_[0]):\n    print(f'  {col:10s}: {c:+.4f}')\nprint(f'  intercept : {lr.intercept_[0]:+.4f}')\n\nprint('\\n=== 오즈비 (OR = exp(β)) ===')\nfor col, c in zip(X.columns, lr.coef_[0]):\n    print(f'  {col:10s}: {np.exp(c):.4f}')\n\n# ⑥ sex_male 오즈비 해석\nor_sex = np.exp(lr.coef_[0][1])\nprint(f'\\n남성의 생존 odds 는 여성의 약 {or_sex:.4f}배')\nprint(f'즉, 남성의 생존 odds 는 여성보다 {(1-or_sex)*100:.1f}% 낮음')\nprint(f'또는 여성의 생존 odds 는 남성의 {1/or_sex:.2f}배 높음')",
+      "explanation": "① sex_male 의 OR ≈ 0.0810 — 다른 변수를 통제했을 때 남성의 생존 odds 는 여성의 8.1% 에 불과합니다 (여성의 odds 는 남성의 약 12.34배). 이는 'Women and children first' 구명보트 정책의 통계적 입증입니다. ② pclass 의 OR ≈ 0.3277 — 좌석 등급이 1단위 올라갈수록 odds 가 32.8% 로 감소. ③ age OR ≈ 0.9681 (1세 증가 시 odds 약 3.2% 감소). ④ fare OR ≈ 1.0008 — 거의 영향 없음 (pclass 와의 다중공선성으로 단독 효과 묻힘).",
+      "tip": "오즈비 해석 규칙 — OR=1: 영향 없음 / OR>1: 생존 odds 증가 / OR<1: 생존 odds 감소. 이진 변수: 1/OR 로 반대 해석 가능 (예: OR=0.0810 → 여성의 odds 는 남성의 1/0.0810 ≈ 12.34배). 연속 변수 n단위 증가 시 odds = OR^n (예: age 10세 증가 → 0.9681^10 ≈ 0.722배)."
     }
   ]
 }
