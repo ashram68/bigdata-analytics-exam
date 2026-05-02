@@ -412,6 +412,7 @@ h4 { font-size: 1.1rem; }
   border-radius: var(--radius-md);
   color: var(--color-on-surface);
   transition: all 0.2s ease;
+  ime-mode: disabled; /* 구형 브라우저용 한글 IME 차단 fallback (modern browser는 JS composition 이벤트로 처리) */
 }
 
 .otp-input:focus {

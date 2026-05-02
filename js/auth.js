@@ -15,6 +15,18 @@
   let lockUntil = 0;
   let codesData = null;
   let currentPage = null;
+  let isComposing = false;  // 한글 IME 조합 상태 추적
+
+  // --- 토스트 안내 (한글 IME 감지 시 사용) ---
+  const toastEl = document.getElementById('toast');
+  let toastTimer = null;
+  function showToast(msg, ms) {
+    if (!toastEl) return;
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), ms || 3000);
+  }
 
   // Load codes on init + pick random page challenge
   // (cache-buster: codes.json schema changed from `codes[]` → `page_codes{}`)
@@ -34,7 +46,22 @@
 
   // --- OTP Input UX ---
   inputs.forEach((input, i) => {
-    input.addEventListener('input', () => {
+    // 한글 IME 조합 시작 감지 → 토스트 안내
+    input.addEventListener('compositionstart', () => {
+      isComposing = true;
+      showToast('⚠ 한/영 키를 눌러 영문 모드로 전환해주세요');
+    });
+
+    // 한글 IME 조합 종료 → 입력값 정리 (영숫자 외 모두 제거)
+    input.addEventListener('compositionend', () => {
+      isComposing = false;
+      input.value = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+      updateButtonState();
+    });
+
+    input.addEventListener('input', (e) => {
+      // IME 조합 중에는 정리 보류 (compositionend 에서 처리)
+      if (isComposing) return;
       input.value = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
       if (input.value && i < inputs.length - 1) {
         inputs[i + 1].focus();
@@ -55,7 +82,7 @@
 
     input.addEventListener('focus', () => input.select());
 
-    // Handle paste
+    // Handle paste (한글 IME 무관, 그대로 영숫자만 추출)
     input.addEventListener('paste', (e) => {
       e.preventDefault();
       const pasted = (e.clipboardData.getData('text') || '')

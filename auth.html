@@ -38,16 +38,17 @@
           <!-- OTP Input -->
           <form id="auth-form" autocomplete="off">
             <div class="flex flex-center gap-sm" id="otp-container" style="margin-bottom: 0.5rem;">
-              <input type="text" class="otp-input" maxlength="1" inputmode="text" autocomplete="off" data-index="0" aria-label="인증코드 1자리">
-              <input type="text" class="otp-input" maxlength="1" inputmode="text" autocomplete="off" data-index="1" aria-label="인증코드 2자리">
-              <input type="text" class="otp-input" maxlength="1" inputmode="text" autocomplete="off" data-index="2" aria-label="인증코드 3자리">
+              <input type="text" class="otp-input" maxlength="1" inputmode="latin" autocomplete="off" lang="en" autocapitalize="characters" spellcheck="false" data-index="0" aria-label="인증코드 1자리">
+              <input type="text" class="otp-input" maxlength="1" inputmode="latin" autocomplete="off" lang="en" autocapitalize="characters" spellcheck="false" data-index="1" aria-label="인증코드 2자리">
+              <input type="text" class="otp-input" maxlength="1" inputmode="latin" autocomplete="off" lang="en" autocapitalize="characters" spellcheck="false" data-index="2" aria-label="인증코드 3자리">
               <div style="width: 12px; display: flex; align-items: center; justify-content: center; color: #9aa0a8; font-size: 1.25rem; font-weight: 700;">-</div>
-              <input type="text" class="otp-input" maxlength="1" inputmode="text" autocomplete="off" data-index="3" aria-label="인증코드 4자리">
-              <input type="text" class="otp-input" maxlength="1" inputmode="text" autocomplete="off" data-index="4" aria-label="인증코드 5자리">
-              <input type="text" class="otp-input" maxlength="1" inputmode="text" autocomplete="off" data-index="5" aria-label="인증코드 6자리">
+              <input type="text" class="otp-input" maxlength="1" inputmode="latin" autocomplete="off" lang="en" autocapitalize="characters" spellcheck="false" data-index="3" aria-label="인증코드 4자리">
+              <input type="text" class="otp-input" maxlength="1" inputmode="latin" autocomplete="off" lang="en" autocapitalize="characters" spellcheck="false" data-index="4" aria-label="인증코드 5자리">
+              <input type="text" class="otp-input" maxlength="1" inputmode="latin" autocomplete="off" lang="en" autocapitalize="characters" spellcheck="false" data-index="5" aria-label="인증코드 6자리">
             </div>
 
-            <p class="text-xs" style="margin-bottom: 1.5rem; color: #7a8290;">영문 대문자 + 숫자 조합</p>
+            <p class="text-xs" style="margin-bottom: 0.25rem; color: #7a8290;">영문 대문자 + 숫자 조합</p>
+            <p class="text-xs" style="margin-bottom: 1.5rem; color: #c0552c; font-weight: 600;">⚠ 한/영 키로 영문 모드 전환 후 입력하세요</p>
 
             <div class="error-msg" id="error-msg">인증 코드가 올바르지 않습니다.</div>
 
