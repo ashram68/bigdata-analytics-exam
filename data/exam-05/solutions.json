@@ -1,0 +1,139 @@
+{
+  "examId": "exam-05",
+  "title": "5회차 모의고사 — Breast Cancer 로지스틱 회귀",
+  "subtitle": "작업형 1·2·3유형 정답 및 해설",
+  "dataset": "sklearn.datasets.load_breast_cancer()",
+  "datasetSource": "sklearn 내장 (Breast Cancer Wisconsin, 569명 × 31 — 30개 진단 변수 + target)",
+  "prerequisiteCode": "import pandas as pd\nimport numpy as np\nfrom sklearn.datasets import load_breast_cancer\nimport warnings\nwarnings.filterwarnings('ignore')\n\n# 5회차 공통 데이터 — sklearn 내장 Breast Cancer (569명 × 31)\nbc = load_breast_cancer(as_frame=True).frame\nbc.columns = [c.replace(' ', '_') for c in bc.columns]\nprint(bc.shape)              # (569, 31)\nprint(bc['target'].value_counts())\n# 1 (benign):    357\n# 0 (malignant): 212",
+  "questions": [
+    {
+      "id": 1,
+      "type": "code",
+      "track": "type1",
+      "category": "1유형 · 데이터 전처리",
+      "title": "mean_radius 평균 이상 카운트",
+      "score": 10,
+      "problem": [
+        "Breast Cancer 데이터에서 mean_radius 가 전체 평균 이상인 환자의 수를 정수로 출력하시오."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "226",
+      "code": "from sklearn.datasets import load_breast_cancer\nbc = load_breast_cancer(as_frame=True).frame\nbc.columns = [c.replace(' ', '_') for c in bc.columns]\n\nmr_mean = bc['mean_radius'].mean()              # 14.127\nanswer  = int((bc['mean_radius'] >= mr_mean).sum())\nprint(answer)                                    # 226",
+      "explanation": "569명 중 226명(39.7%) 이 평균 이상의 mean_radius 를 가집니다. 50% 보다 작은 이유는 분포가 우측으로 치우친 비대칭(positive skew) 이기 때문입니다. 악성 종양은 평균 mean_radius 가 17.46 으로 양성(12.15) 보다 큰데, 이 226명에 악성 환자가 집중되어 있을 가능성이 높습니다.",
+      "tip": "평균 이상 카운트는 boolean mask 의 .sum() 으로 한 줄에 처리. 평균이 중앙값과 다른 이유는 분포 비대칭. 의료 데이터는 종양 크기가 우측 꼬리(큰 값) 가 길어 평균 > 중앙값 인 경우가 흔함."
+    },
+    {
+      "id": 2,
+      "type": "code",
+      "track": "type1",
+      "category": "1유형 · 데이터 전처리",
+      "title": "양성 - 악성 mean_area 차이",
+      "score": 10,
+      "problem": [
+        "target 별 mean_area 의 평균을 구하고, (양성 평균) - (악성 평균) 을 정수로 변환(버림) 하여 출력하시오.",
+        "target: 0 = 악성(malignant), 1 = 양성(benign)"
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "-515",
+      "code": "from sklearn.datasets import load_breast_cancer\nbc = load_breast_cancer(as_frame=True).frame\nbc.columns = [c.replace(' ', '_') for c in bc.columns]\n\nma   = bc.groupby('target')['mean_area'].mean()\n# 0 (malignant): 978.38\n# 1 (benign):    462.79\ndiff   = ma[1] - ma[0]                          # -515.59\nanswer = int(diff)                              # -515 (truncated)\nprint(answer)                                    # -515",
+      "explanation": "양성 환자(462.8) 의 평균 mean_area 가 악성 환자(978.4) 보다 515 작습니다. 악성 종양은 일반적으로 더 빠르게 성장하여 면적이 크다는 의학적 사실과 일치합니다. 음수 값은 비교 순서(양성-악성) 에서 양성이 작다는 의미이며, 진단 모델에서 mean_area 가 강력한 변수임을 시사합니다.",
+      "tip": "sklearn 라벨 컨벤션 주의 — breast_cancer 데이터에서 0=악성, 1=양성입니다. 직관(악성=1) 과 반대일 수 있으니 항상 .target_names 또는 .unique() 로 확인하는 습관이 중요. 본 회차 작업형 3 에서는 의료 관행에 맞춰 재코딩(y = 1 - bc['target']) 사용."
+    },
+    {
+      "id": 3,
+      "type": "code",
+      "track": "type1",
+      "category": "1유형 · 데이터 전처리",
+      "title": "worst_radius 상위 20% 양성 환자 수",
+      "score": 10,
+      "problem": [
+        "worst_radius 상위 20% 임계값(80% 분위수) 이상인 환자들 중 양성(target=1) 인 환자의 수를 정수로 출력하시오."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "0",
+      "code": "from sklearn.datasets import load_breast_cancer\nbc = load_breast_cancer(as_frame=True).frame\nbc.columns = [c.replace(' ', '_') for c in bc.columns]\n\nthreshold = bc['worst_radius'].quantile(0.8)    # 20.29\ntop       = bc[bc['worst_radius'] >= threshold] # 114 patients\nanswer    = int((top['target'] == 1).sum())\nprint(answer)                                    # 0",
+      "explanation": "worst_radius 상위 20% 환자 114명 중 양성은 0명으로, 모두 악성입니다. worst_radius 가 매우 클수록 악성 가능성이 극단적으로 높아짐을 보여주는 강력한 진단 지표입니다. 이 분리력은 작업형 3 에서 로지스틱 회귀 OR 이 매우 큰 값으로 나오는 이유와도 연결됩니다.",
+      "tip": "df.quantile(0.8) 은 80% 분위수 (= 상위 20% 임계값). >= 비교로 분위수 이상을 골라낸 뒤 target 조건 카운트. 본 결과처럼 0 이 나오는 경우는 변수의 분리력이 매우 좋다는 의미 (이상값이 아닌 정상 패턴)."
+    },
+    {
+      "id": 4,
+      "type": "code",
+      "track": "type2",
+      "category": "2유형 · ML 모델링",
+      "title": "유방암 양성/악성 이진 분류 (RandomForest, ROC-AUC)",
+      "score": 40,
+      "problem": [
+        "Breast Cancer 데이터를 사용하여 양성/악성 이진 분류 모델을 학습하고, 검증 데이터에 대한 ROC-AUC 를 출력하시오.",
+        "수행: X = 30개 특성 / y = target / train_test_split(test_size=0.2, random_state=42, stratify=y) / RandomForestClassifier(n_estimators=100, random_state=42)",
+        "predict_proba 로 양성 클래스(target=1) 확률 추출 → roc_auc_score",
+        "목표: AUC ≥ 0.95"
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "AUC ≈ 0.9937 (거의 완벽)",
+      "code": "from sklearn.datasets import load_breast_cancer\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.metrics import roc_auc_score\n\nbc = load_breast_cancer(as_frame=True).frame\nbc.columns = [c.replace(' ', '_') for c in bc.columns]\nX = bc.drop('target', axis=1)\ny = bc['target']\n\nX_tr, X_va, y_tr, y_va = train_test_split(\n    X, y, test_size=0.2, random_state=42, stratify=y\n)\n\nrf = RandomForestClassifier(n_estimators=100, random_state=42)\nrf.fit(X_tr, y_tr)\n\n# Probabilities for the positive class (benign=1)\nproba = rf.predict_proba(X_va)[:, 1]\nauc   = roc_auc_score(y_va, proba)\nprint(f'AUC: {auc:.4f}')                         # 0.9937",
+      "explanation": "AUC 0.9937 은 거의 완벽한 분류 성능입니다. 30개 진단 변수가 양성/악성을 매우 강력하게 구분함을 의미합니다. 중요 변수는 worst_perimeter, worst_concave_points, worst_area 등 worst 계열로, 종양의 가장 큰 부위 측정값이 악성도 판단에 결정적입니다. 의료 영상 자동 진단 시스템이 가능한 이유를 보여주는 데이터입니다.",
+      "tip": "임상에서의 ML 적용 주의점 — AUC 99% 모델이라도 의료에서는 false negative(악성을 양성으로 오진) 가 치명적입니다. recall(민감도) 최대화를 위해 임계값(threshold) 조정이 중요하며, predict_proba 의 임계값을 0.5 에서 낮게 조정하는 전략을 자주 사용합니다 (예: threshold=0.3 → 더 많이 잡아내되 false positive 증가)."
+    },
+    {
+      "id": 5,
+      "type": "code",
+      "track": "type3",
+      "category": "3유형 · 통계 분석 (로지스틱 회귀)",
+      "title": "단순 로지스틱 회귀 — mean_radius → 악성",
+      "score": 10,
+      "problem": [
+        "mean_radius 를 독립변수, 악성 여부(y=1=악성, 0=양성) 를 종속변수로 하는 단순 로지스틱 회귀모형을 적합하고, 회귀계수의 유의성을 검정하고 Odds Ratio 를 해석하시오.",
+        "수행: statsmodels.api.Logit 사용 → sm.add_constant() 필수 → exp(β) 로 OR 계산",
+        "출력: ① 회귀계수 β₁ (소수 2자리), ② Odds Ratio = exp(β₁) (소수 2자리), ③ 검정 결론: '기각' 또는 '채택'"
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "β₁ = 1.03 / OR = 2.81 / 기각 (p < 0.0001)",
+      "code": "import numpy as np\nimport statsmodels.api as sm\nfrom sklearn.datasets import load_breast_cancer\nbc = load_breast_cancer(as_frame=True).frame\nbc.columns = [c.replace(' ', '_') for c in bc.columns]\n\n# 의료 관행 재코딩: 1 = malignant\ny = 1 - bc['target']\n\n# Add constant for intercept (REQUIRED for statsmodels!)\nX = sm.add_constant(bc['mean_radius'])\nmodel = sm.Logit(y, X).fit(disp=0)\n\nbeta1   = model.params['mean_radius']           # 1.0336\nor_v    = np.exp(beta1)                         # 2.8111\np_value = model.pvalues['mean_radius']          # 1.25e-28\nci      = model.conf_int().loc['mean_radius']\nor_lo, or_hi = np.exp(ci[0]), np.exp(ci[1])     # (2.34, 3.37)\n\nprint(f'beta_1 = {beta1:.2f}')                  # 1.03\nprint(f'OR     = {or_v:.2f}')                   # 2.81\nprint(f'OR 95% CI: ({or_lo:.2f}, {or_hi:.2f})') # (2.34, 3.37)\nprint('기각' if p_value < 0.05 else '채택')",
+      "explanation": "의료통계 실무 보고문 예시 — 'mean_radius 가 1단위 증가할 때마다 유방암 진단 확률(악성 오즈) 이 약 2.81배 증가합니다 (95% CI: 2.34-3.37, p < 0.0001).' OR = 2.81 은 매우 강력한 위험요인을 의미하며, 의학적으로도 종양 크기가 클수록 악성 가능성이 높아진다는 직관과 일치합니다. 신뢰구간이 1을 포함하지 않고 모두 1 보다 크므로 'mean_radius 는 악성의 위험요인이다' 라고 통계적으로 단언할 수 있습니다.",
+      "tip": "OR 해석법 — OR = 2.81 의 의미: mean_radius 가 1단위 증가할 때 악성 오즈(odds) 가 2.81배가 됨. 주의: OR 은 '확률의 배수' 가 아니라 '오즈의 배수'. OR 해석 가이드 — 1.5~2.0 약한 위험요인 / 2.0~3.0 중간 위험요인 (본 결과 OR=2.81) / 3.0 이상 강한 위험요인."
+    },
+    {
+      "id": 6,
+      "type": "code",
+      "track": "type3",
+      "category": "3유형 · 통계 분석 (로지스틱 회귀)",
+      "title": "다중 로지스틱 회귀 — Odds Ratio 비교",
+      "score": 10,
+      "problem": [
+        "mean_radius 와 mean_texture 두 변수를 동시에 독립변수로 하는 다중 로지스틱 회귀모형을 적합하시오.",
+        "각 변수의 Odds Ratio 와 95% 신뢰구간을 계산하고, 어떤 변수가 더 강력한 위험요인인지 비교하시오.",
+        "출력: ① mean_radius 의 OR (소수 2자리), ② mean_texture 의 OR (소수 2자리), ③ 결론 (예: '두 변수 모두 양의 위험요인')"
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "mean_radius OR = 2.88 / mean_texture OR = 1.24 / 둘 다 양의 위험요인 (모두 p < 0.0001)",
+      "code": "import numpy as np\nimport statsmodels.api as sm\nfrom sklearn.datasets import load_breast_cancer\nbc = load_breast_cancer(as_frame=True).frame\nbc.columns = [c.replace(' ', '_') for c in bc.columns]\ny = 1 - bc['target']\n\n# Multiple logistic regression with two predictors\nX = sm.add_constant(bc[['mean_radius', 'mean_texture']])\nmodel = sm.Logit(y, X).fit(disp=0)\n\nfor var in ['mean_radius', 'mean_texture']:\n    coef = model.params[var]\n    or_v = np.exp(coef)\n    ci   = model.conf_int().loc[var]\n    or_lo, or_hi = np.exp(ci[0]), np.exp(ci[1])\n    p    = model.pvalues[var]\n    print(f'{var:14s} beta={coef:.4f}  OR={or_v:.2f}  '\n          f'95%CI=({or_lo:.2f}, {or_hi:.2f})  p={p:.4e}')\n# mean_radius   beta=1.0571  OR=2.88  95%CI=(2.36, 3.51)  p=2.08e-25\n# mean_texture  beta=0.2181  OR=1.24  95%CI=(1.16, 1.34)  p=3.98e-09",
+      "explanation": "두 변수 모두 통계적으로 유의한 위험요인입니다 (p < 0.0001). mean_radius (OR=2.88, 95% CI: 2.36-3.51) 가 mean_texture (OR=1.24, 95% CI: 1.16-1.34) 보다 더 강력한 영향을 미칩니다. 두 변수의 OR 신뢰구간이 겹치지 않으므로 'mean_radius 가 mean_texture 보다 통계적으로 더 강력한 위험요인이다' 라고 결론 가능합니다. 주목할 점 — [5-3-1] 단순 로지스틱에서 mean_radius OR = 2.81 이었으나, 다중 로지스틱에서 OR = 2.88 로 약간 증가 (mean_texture 와 음의 상관 -0.32 가 있어 통제 효과).",
+      "tip": "OR 과 회귀계수 관계 — β=0 → OR=1 (영향 없음) / β>0 → OR>1 (위험요인) / β<0 → OR<1 (보호요인). 변수 영향력 순위 비교는 β 의 절댓값(또는 z-통계량) 으로, 위험도 의학적 해석은 OR 로. 본 결과: mean_radius β=1.06 (큼) → OR=2.88 (강한 위험), mean_texture β=0.22 (작음) → OR=1.24 (약한 위험)."
+    },
+    {
+      "id": 7,
+      "type": "code",
+      "track": "type3",
+      "category": "3유형 · 통계 분석 (로지스틱 회귀)",
+      "title": "로지스틱 회귀 모델 적합도 — Pseudo R² + LLR 검정",
+      "score": 10,
+      "problem": [
+        "[5-3-2] 에서 적합한 다중 로지스틱 회귀 모델(mean_radius + mean_texture → 악성) 의 전체 적합도를 평가하시오.",
+        "가설 (LLR 검정): H0 모든 회귀계수 = 0 (모델 무의미) / H1 적어도 하나의 β ≠ 0 (모델 유의미)",
+        "출력: ① Pseudo R² (McFadden, 소수 4자리), ② AIC (소수 2자리), ③ 검정 결론: '기각' 또는 '채택' (LLR p-value 기준)"
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "Pseudo R² = 0.6126 / AIC = 297.12 / 기각 (LLR p < 0.0001)",
+      "code": "import statsmodels.api as sm\nfrom sklearn.datasets import load_breast_cancer\nbc = load_breast_cancer(as_frame=True).frame\nbc.columns = [c.replace(' ', '_') for c in bc.columns]\ny = 1 - bc['target']\n\nX = sm.add_constant(bc[['mean_radius', 'mean_texture']])\nmodel = sm.Logit(y, X).fit(disp=0)\n\npseudo_r2 = model.prsquared        # 0.6126 (McFadden)\nllr_pval  = model.llr_pvalue       # 1.11e-100\naic       = model.aic              # 297.12\nbic       = model.bic              # 310.16\n\nprint(f'Pseudo R^2 (McFadden) = {pseudo_r2:.4f}')   # 0.6126\nprint(f'AIC                   = {aic:.2f}')         # 297.12\nprint(f'BIC                   = {bic:.2f}')         # 310.16\nprint(f'LLR p-value           = {llr_pval:.4f}')    # 0.0000\nprint('기각' if llr_pval < 0.05 else '채택')",
+      "explanation": "다중 로지스틱 회귀 모델은 LLR 검정 p < 0.0001 로 통계적으로 매우 유의했으며, McFadden Pseudo R² = 0.6126 으로 매우 우수한 적합도를 보였습니다 (AIC = 297.12). Pseudo R² 0.61 은 선형회귀 R² 기준으로는 0.8 이상에 해당하는 매우 강력한 모델입니다. 두 변수만으로도 유방암 진단의 대부분을 설명할 수 있음을 의미하며, [5-2] 의 RandomForest AUC 0.9937 결과와 일관됩니다 — 유방암 데이터는 본질적으로 분리력이 좋은 데이터입니다.",
+      "tip": "Logit 모델의 적합도 지표 정리 — (1) McFadden Pseudo R² = 1 - LL_full / LL_null, 0~1 범위 (선형 R² 보다 작게 나오는 것이 정상), 0.4 이상이면 매우 우수. (2) LLR Test = OLS 의 F-검정에 해당, LLR = 2 × (LL_full - LL_null) ~ χ²(df=k). (3) AIC/BIC = 변수 개수 페널티 적용된 정보 기준, 작을수록 좋은 모델, Nested 모델 비교 시 사용."
+    }
+  ]
+}
