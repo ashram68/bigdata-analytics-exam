@@ -1,0 +1,142 @@
+{
+  "examId": "exam-04",
+  "title": "4회차 모의고사 — Diabetes 다중회귀 심화",
+  "subtitle": "작업형 1·2·3유형 정답 및 해설",
+  "dataset": "sklearn.datasets.load_diabetes()",
+  "datasetSource": "sklearn 내장 (Diabetes 442명, 10 변수 모두 표준화 — 3회차와 동일)",
+  "prerequisiteCode": "import pandas as pd\nimport numpy as np\nfrom sklearn.datasets import load_diabetes\nimport warnings\nwarnings.filterwarnings('ignore')\n\n# 4회차 공통 데이터 — sklearn 내장 Diabetes (3회차와 동일, 442명 × 11)\ndf = load_diabetes(as_frame=True).frame\nprint(df.shape)              # (442, 11)\nprint(df.columns.tolist())",
+  "questions": [
+    {
+      "id": 1,
+      "type": "code",
+      "track": "type1",
+      "category": "1유형 · 데이터 전처리",
+      "title": "bmi 변수의 IQR 기반 이상값 행 카운트",
+      "score": 10,
+      "problem": [
+        "diabetes 데이터에서 bmi 변수의 IQR(Interquartile Range) 을 계산하시오.",
+        "Q1 - 1.5×IQR 미만 또는 Q3 + 1.5×IQR 초과에 해당하는 이상값(outlier) 행의 수를 정수로 출력하시오."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "3",
+      "code": "from sklearn.datasets import load_diabetes\ndf = load_diabetes(as_frame=True).frame\n\n# IQR 기반 이상값 탐지\nQ1  = df['bmi'].quantile(0.25)              # -0.0342\nQ3  = df['bmi'].quantile(0.75)              #  0.0312\nIQR = Q3 - Q1                               #  0.0655\nlower = Q1 - 1.5 * IQR                      # -0.1324\nupper = Q3 + 1.5 * IQR                      #  0.1295\n\nmask = (df['bmi'] < lower) | (df['bmi'] > upper)\nanswer = int(mask.sum())\nprint(answer)                               # 3",
+      "explanation": "bmi 변수에서 IQR 기준 이상값은 단 3개로, 442명 중 0.7% 에 불과합니다. 3회의 target z-score 이상값(12개, 2.7%) 과 비교하면 bmi 가 더 좁은 분포를 가지며 outlier 가 적은 변수임을 알 수 있습니다. 이상값 탐지 결과는 사용한 방법(z-score vs IQR) 에 따라 크게 달라질 수 있다는 점을 보여주는 사례입니다.",
+      "tip": "z-score vs IQR — z-score 는 정규분포 가정 필요 (평균·표준편차 의존), IQR 은 분포 가정 불필요 (사분위수 기반, outlier 에 robust). 정규분포 가까우면 z-score, 왜도/첨도 크면 IQR, 의사결정 중요하면 두 방법 모두 비교."
+    },
+    {
+      "id": 2,
+      "type": "code",
+      "track": "type1",
+      "category": "1유형 · 데이터 전처리",
+      "title": "target 평균 기준 이분화 → bp 평균 차이",
+      "score": 10,
+      "problem": [
+        "target 변수의 평균값을 기준으로 데이터를 두 그룹(평균 이상=high, 평균 미만=low) 으로 나누시오.",
+        "각 그룹의 bp 평균 차이의 절댓값을 소수 넷째 자리까지 출력하시오."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "0.0376",
+      "code": "from sklearn.datasets import load_diabetes\ndf = load_diabetes(as_frame=True).frame\n\nmean_t = df['target'].mean()                            # 152.1335\ng_high = df[df['target'] >= mean_t]['bp'].mean()        # 0.020989\ng_low  = df[df['target']  < mean_t]['bp'].mean()        # -0.016571\nanswer = round(abs(g_high - g_low), 4)\nprint(answer)                                            # 0.0376",
+      "explanation": "target 이 평균 이상인 환자군(high) 의 bp 는 평균 +0.021, 미만 환자군(low) 은 -0.017 로 약 0.038 의 차이를 보입니다. bp 가 표준화된 값이라 절댓값 자체는 작지만, 표준편차 단위로 약 0.4σ 차이이며 임상적으로는 의미 있는 차이입니다. 이 결과는 [4-3] 에서 다루는 bp 의 회귀계수 유의성(t≈8.2, p<0.0001) 과 일관됩니다.",
+      "tip": "본 데이터의 bp 는 평균 0, L2 norm = 1 로 표준화되어 있어 그룹 간 차이가 작은 소수로 표현됩니다. round(value, 4) 로 자리수 정확히 맞추세요."
+    },
+    {
+      "id": 3,
+      "type": "code",
+      "track": "type1",
+      "category": "1유형 · 데이터 전처리",
+      "title": "입력변수와 target 의 상관계수 절댓값 합",
+      "score": 10,
+      "problem": [
+        "diabetes 데이터의 10개 입력변수(age, sex, bmi, bp, s1~s6) 각각과 target 사이의 Pearson 상관계수를 구하시오.",
+        "절댓값을 모두 합한 값을 소수 둘째 자리까지 출력하시오."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "3.42",
+      "code": "from sklearn.datasets import load_diabetes\ndf = load_diabetes(as_frame=True).frame\n\n# 각 입력변수와 target 사이 Pearson 상관계수\ncorrs = df.drop('target', axis=1).corrwith(df['target'])\n# age   0.1879\n# sex   0.0431\n# bmi   0.5865\n# bp    0.4415\n# s1    0.2120\n# s2    0.1741\n# s3   -0.3948\n# s4    0.4305\n# s5    0.5659\n# s6    0.3825\n\nanswer = round(corrs.abs().sum(), 2)\nprint(answer)                                  # 3.42",
+      "explanation": "10개 입력변수의 target 상관계수 절댓값 합은 3.42 입니다. 변수별로는 bmi(0.59), s5(0.57), bp(0.44), s4(0.43) 순으로 강한 상관을 보이며, sex(0.04) 가 가장 낮습니다. 단, 이는 단변량 상관이므로 다중회귀에서의 부분효과(partial effect) 와 다를 수 있습니다 (3회 가이드 참조).",
+      "tip": "df.corrwith(target_series) 은 각 컬럼과 target 의 Pearson 상관을 한 번에 계산. 음의 상관도 영향력 측정에 포함되므로 절댓값(.abs()) 사용. 단변량 상관이 작아도 다른 변수와 결합 시 중요한 변수일 수 있고 (interaction), 반대로 단변량 상관이 커도 다중공선성으로 다중회귀에서 무의미해질 수 있음."
+    },
+    {
+      "id": 4,
+      "type": "code",
+      "track": "type2",
+      "category": "2유형 · ML 모델링",
+      "title": "Diabetes 회귀 — LR vs RF vs GBR 3-모델 비교",
+      "score": 40,
+      "problem": [
+        "diabetes 데이터의 모든 변수(10개) 를 사용하여 target 값을 예측하는 세 회귀 모델을 학습하시오.",
+        "검증 데이터에 대한 RMSE 와 R² 를 각각 출력한 뒤 어느 모델이 가장 우수한지 결정하시오.",
+        "수행: LinearRegression() / RandomForestRegressor(n_estimators=100, random_state=42) / GradientBoostingRegressor(n_estimators=100, random_state=42)",
+        "RandomForest 의 feature_importances_ Top-3 도 출력.",
+        "목표: 세 모델 모두 RMSE < 60, R² > 0.40."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "LR RMSE=53.85 / RF RMSE=54.33 / GBR RMSE=53.84 ★ Best=GBR / Top-3=['bmi','s5','bp']",
+      "code": "import numpy as np\nfrom sklearn.datasets import load_diabetes\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor\nfrom sklearn.metrics import mean_squared_error, r2_score\n\ndf = load_diabetes(as_frame=True).frame\nX = df.drop('target', axis=1)\ny = df['target']\nX_tr, X_va, y_tr, y_va = train_test_split(\n    X, y, test_size=0.2, random_state=42\n)\n\nmodels = {\n    'LR':  LinearRegression(),\n    'RF':  RandomForestRegressor(n_estimators=100, random_state=42),\n    'GBR': GradientBoostingRegressor(n_estimators=100, random_state=42),\n}\nresults = {}\nfor name, model in models.items():\n    model.fit(X_tr, y_tr)\n    pred = model.predict(X_va)\n    rmse = np.sqrt(mean_squared_error(y_va, pred))\n    r2   = r2_score(y_va, pred)\n    results[name] = (rmse, r2)\n    print(f'{name:4s} -> RMSE: {rmse:.2f}, R2: {r2:.4f}')\n\n# Best by lowest RMSE\nbest = min(results.items(), key=lambda x: x[1][0])\nprint(f'Best model: {best[0]} (RMSE={best[1][0]:.2f})')\n\n# Top-3 features (RF)\nrf = models['RF']\ntop3 = [name for name, _ in sorted(\n    zip(X.columns, rf.feature_importances_),\n    key=lambda x: -x[1]\n)[:3]]\nprint(f'Top-3 features: {top3}')",
+      "explanation": "세 모델의 성능이 매우 비슷합니다 (RMSE 53.84 ~ 54.33, 차이 1% 미만). GBR(53.84) 가 미세하게 1위지만 LR(53.85) 와 사실상 동등합니다. 이 결과는 두 가지 메시지를 줍니다 — (1) diabetes 데이터는 본질적으로 선형 관계가 강하다 (비선형 모델의 우위가 거의 없음), (2) 모델 선택보다 변수 선택/특성공학이 더 중요할 수 있다.",
+      "tip": "세 모델의 학습 메커니즘 — LR (최소제곱법, 한 번에 해 추정), RF (다수의 의사결정나무 독립 학습 후 평균, bagging, overfitting 강함), GBR (이전 나무의 잔차를 다음 나무가 학습, boosting, 일반적으로 RF 보다 정확하나 overfitting 위험). 시험 팁 — RandomForest 를 default 로 사용하면 대부분 합격선 도달 가능, 시간 여유 시 GBR 또는 XGBoost 로 미세 조정."
+    },
+    {
+      "id": 5,
+      "type": "code",
+      "track": "type3",
+      "category": "3유형 · 통계 분석 (회귀)",
+      "title": "다중회귀 회귀계수 영향력 비교 (age, bp, s3, s4)",
+      "score": 10,
+      "problem": [
+        "age, bp, s3, s4 네 변수를 독립변수로, target 을 종속변수로 하는 다중회귀모형을 적합하시오.",
+        "각 변수의 회귀계수의 절댓값 기준으로 영향력이 가장 큰 변수를 식별하시오.",
+        "출력: ① 가장 영향력이 큰 변수명, ② 해당 변수의 회귀계수 (소수 2자리), ③ 통계적 유의성 결론."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "최대 영향 변수 = bp / β = 569.57 / 기각 (p < 0.0001)",
+      "code": "import statsmodels.api as sm\nfrom sklearn.datasets import load_diabetes\ndf = load_diabetes(as_frame=True).frame\n\n# 다중회귀 (4개 변수)\nX = sm.add_constant(df[['age', 'bp', 's3', 's4']])\ny = df['target']\nmodel = sm.OLS(y, X).fit()\n\n# 모든 변수의 t, p 출력\nfor var in ['age', 'bp', 's3', 's4']:\n    coef = model.params[var]\n    t    = model.tvalues[var]\n    p    = model.pvalues[var]\n    sig  = '기각' if p < 0.05 else '채택'\n    print(f'{var:5s}: beta={coef:8.2f}, t={t:6.2f}, p={p:.4f} [{sig}]')\n# age  : beta=   24.02, t=  0.35, p=0.7278 [채택]\n# bp   : beta=  569.57, t=  8.20, p=0.0000 [기각]\n# s3   : beta= -292.26, t= -3.06, p=0.0024 [기각]\n# s4   : beta=  329.41, t=  3.36, p=0.0009 [기각]\n\n# 절댓값 최대 변수\ncoefs = {var: model.params[var] for var in ['age', 'bp', 's3', 's4']}\ntop_var = max(coefs, key=lambda k: abs(coefs[k]))\ntop_val = coefs[top_var]\nprint(f'Top influence: {top_var}, beta={top_val:.2f}')   # bp, 569.57",
+      "explanation": "다중회귀 모형 target = 152.13 + 24.02·age + 569.57·bp − 292.26·s3 + 329.41·s4 에서 회귀계수 절댓값 기준 영향력 순위는 bp(569.57) > s4(329.41) > s3(292.26) > age(24.02) 입니다. bp 가 가장 큰 영향력을 가지며 t = 8.20, p < 0.0001 로 매우 유의합니다. 흥미로운 점은 age 가 다중회귀에서 유의하지 않다는 것 (p=0.7278) — [4-1-3] 에서 단변량 상관은 0.19 였지만 bp·s3·s4 를 통제한 후에는 age 고유의 영향력이 거의 사라집니다.",
+      "tip": "회귀계수 크기로 영향력 비교 가능한 조건 — (1) 모든 변수가 같은 단위/스케일로 표준화 (본 데이터), (2) 표준화 회귀계수를 따로 계산, (3) t-통계량으로 비교 (스케일 무관, 통계적 유의성 함께 반영). 실무 권장 — 영향력 순위는 t-통계량 절댓값으로 비교 (단위 무관 + 유의성 반영)."
+    },
+    {
+      "id": 6,
+      "type": "code",
+      "track": "type3",
+      "category": "3유형 · 통계 분석 (회귀)",
+      "title": "다중회귀 모델 전체 F-검정",
+      "score": 10,
+      "problem": [
+        "[4-3-1] 에서 적합한 다중회귀 모델(age + bp + s3 + s4 → target) 이 전체적으로 통계적으로 유의한지 F-검정으로 확인하시오. (α=0.05)",
+        "Adjusted R² 를 함께 보고하시오.",
+        "출력: ① F-통계량 (소수 2자리), ② Adjusted R² (소수 4자리), ③ 결론."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "F = 50.70 / Adj R² = 0.3107 / 기각 (p < 0.0001)",
+      "code": "import statsmodels.api as sm\nfrom sklearn.datasets import load_diabetes\ndf = load_diabetes(as_frame=True).frame\n\nX = sm.add_constant(df[['age', 'bp', 's3', 's4']])\ny = df['target']\nmodel = sm.OLS(y, X).fit()\n\nf_stat   = model.fvalue          # 50.6963\nf_pvalue = model.f_pvalue        # 4.71e-35\nr2       = model.rsquared        # 0.3170\nadj_r2   = model.rsquared_adj    # 0.3107\n\nprint(f'F-statistic   = {f_stat:.2f}')      # 50.70\nprint(f'F p-value     = {f_pvalue:.4f}')    # 0.0000\nprint(f'R^2           = {r2:.4f}')          # 0.3170\nprint(f'Adjusted R^2  = {adj_r2:.4f}')      # 0.3107\nprint('기각' if f_pvalue < 0.05 else '채택')",
+      "explanation": "F = 50.70, p < 0.0001 로 모델 전체가 통계적으로 매우 유의합니다. Adjusted R² = 0.31 은 4개 변수(age, bp, s3, s4) 로 target 변동의 31% 를 설명함을 의미합니다. 주목 — [4-3-1] 에서 age 는 개별적으로는 유의하지 않았으나, 모델 전체 F-검정은 강력히 유의합니다. 이는 F-검정과 t-검정의 본질적 차이를 잘 보여주는 사례입니다.",
+      "tip": "F-검정 vs Adjusted R² — F-검정 공식 F = (R²/k) / ((1-R²)/(n-k-1)) 로 R² 와 직접 연결, R² 높을수록 F 큼. Adj R² 공식 = 1 - (1-R²)·(n-1)/(n-k-1) 로 변수 개수 페널티 적용 → 의미 없는 변수는 Adj R² 를 증가시키지 않음. 모델 비교 시 변수 개수 다른 모델은 반드시 Adjusted R² 사용."
+    },
+    {
+      "id": 7,
+      "type": "code",
+      "track": "type3",
+      "category": "3유형 · 통계 분석 (회귀)",
+      "title": "Nested 모델 비교 — bmi 추가 시 Adjusted R² 변화",
+      "score": 10,
+      "problem": [
+        "[4-3-1] 에서 적합한 Reduced 모델(age + bp + s3 + s4) 에 bmi 변수를 추가한 Full 모델(age + bp + s3 + s4 + bmi) 을 적합하시오.",
+        "두 모델의 Adjusted R² 를 비교하여 bmi 추가가 모델 설명력을 의미있게 향상시키는지 판단하시오.",
+        "출력: ① Reduced Adj R² (소수 4자리), ② Full Adj R² (소수 4자리), ③ ΔAdj R² (소수 4자리, 부호 포함)."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "Reduced Adj R² = 0.3107 / Full Adj R² = 0.4291 / ΔAdj R² = +0.1184 (정당화됨)",
+      "code": "import statsmodels.api as sm\nfrom sklearn.datasets import load_diabetes\ndf = load_diabetes(as_frame=True).frame\n\n# Reduced 모델 (변수 4개)\nX_reduced = sm.add_constant(df[['age', 'bp', 's3', 's4']])\nm_reduced = sm.OLS(df['target'], X_reduced).fit()\n\n# Full 모델 (bmi 추가, 변수 5개)\nX_full    = sm.add_constant(df[['age', 'bp', 's3', 's4', 'bmi']])\nm_full    = sm.OLS(df['target'], X_full).fit()\n\n# Adjusted R² 비교\nadj_r2_reduced = m_reduced.rsquared_adj      # 0.3107\nadj_r2_full    = m_full.rsquared_adj         # 0.4291\ndelta_adj_r2   = adj_r2_full - adj_r2_reduced  # +0.1184\n\nprint(f'Reduced Adj R^2 = {adj_r2_reduced:.4f}')   # 0.3107\nprint(f'Full    Adj R^2 = {adj_r2_full:.4f}')      # 0.4291\nprint(f'Delta   Adj R^2 = {delta_adj_r2:+.4f}')    # +0.1184\n\nif delta_adj_r2 > 0.05:\n    print('=> bmi 추가가 모델 설명력을 의미있게 향상시킴 (정당화됨)')\nelse:\n    print('=> bmi 추가 효과 미미')",
+      "explanation": "bmi 를 추가한 Full 모델의 Adjusted R²(0.4291) 는 Reduced 모델(0.3107) 대비 약 0.12 증가합니다. 이는 단순 R² 증가가 아니라 변수 개수 페널티를 적용한 후의 순수 향상이므로, bmi 가 모델에 의미있는 정보를 추가한다는 강력한 증거입니다. 이 결과는 [4-2] RandomForest 의 feature_importances_ 에서 bmi 가 1위였던 것과 일치하며, [3-3-2] 의 다중회귀에서도 bmi 의 회귀계수가 가장 컸던 것과도 일관됩니다.",
+      "tip": "Nested 모델 비교 방법 3가지 — (1) Adjusted R² (본 문제, 가장 직관적), (2) Partial F-test (statsmodels.stats.anova.anova_lm 으로 추가 변수의 통계적 유의성 검정), (3) AIC/BIC (모델 복잡도 페널티 정보 기준). 판단 기준 — ΔAdj R² > 0.05 + Partial F p < 0.05 → 변수 추가 정당화 / ΔAdj R² ≈ 0 → 추가 효과 미미 / ΔAdj R² < 0 → 변수 추가가 오히려 모델 악화."
+    }
+  ]
+}
