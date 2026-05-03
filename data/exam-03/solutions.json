@@ -1,0 +1,142 @@
+{
+  "examId": "exam-03",
+  "title": "3회차 모의고사 — Diabetes (당뇨 진행도 회귀) 데이터 기반",
+  "subtitle": "작업형 1·2·3유형 정답 및 해설",
+  "dataset": "sklearn.datasets.load_diabetes()",
+  "datasetSource": "sklearn 내장 (Diabetes 442명, 10 변수 모두 표준화됨)",
+  "prerequisiteCode": "import pandas as pd\nimport numpy as np\nfrom sklearn.datasets import load_diabetes\nimport warnings\nwarnings.filterwarnings('ignore')\n\n# 3회차 공통 데이터 — sklearn 내장 Diabetes (442명, 10 변수 + target)\ndf = load_diabetes(as_frame=True).frame\nprint(df.shape)              # (442, 11)\nprint(df.columns.tolist())",
+  "questions": [
+    {
+      "id": 1,
+      "type": "code",
+      "track": "type1",
+      "category": "1유형 · 데이터 전처리",
+      "title": "target 변수의 z-score 이상값 행 카운트",
+      "score": 10,
+      "problem": [
+        "diabetes 데이터에서 target 변수를 표준화(z-score) 하시오.",
+        "|z| > 1.96 에 해당하는 이상값(outlier) 행의 수를 정수로 출력하시오."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "12",
+      "code": "import numpy as np\nfrom scipy import stats\nfrom sklearn.datasets import load_diabetes\ndf = load_diabetes(as_frame=True).frame\n\n# 방법 1: scipy.stats.zscore (가장 간단)\nz = stats.zscore(df['target'])\nanswer = int((np.abs(z) > 1.96).sum())\nprint(answer)   # 12\n\n# 방법 2: 직접 계산 (ddof=0, scipy.zscore 와 동일)\n# mean_t = df['target'].mean()\n# std_t  = df['target'].std(ddof=0)\n# z_manual = (df['target'] - mean_t) / std_t\n# answer = int((z_manual.abs() > 1.96).sum())",
+      "explanation": "442명 중 12명(약 2.7%)이 target 변수에서 통계적 이상값으로 분류됩니다. 정규분포 가정 시 |z| > 1.96 영역에는 이론상 약 5%(약 22명) 가 존재해야 하지만, 실제로는 12명(2.7%) 만 해당하므로 target 분포가 정규분포보다 꼬리가 얇은 형태임을 시사합니다.",
+      "tip": "z-score 임계값 — |z| > 1.96 (95% 기준, 가장 일반적), |z| > 2.58 (99% 기준), |z| > 3.00 (3-sigma). 정규분포 가정 전제이며, 왜도가 큰 데이터에는 IQR 방법이 더 적합합니다."
+    },
+    {
+      "id": 2,
+      "type": "code",
+      "track": "type1",
+      "category": "1유형 · 데이터 전처리",
+      "title": "sex 그룹별 target 평균 차이",
+      "score": 10,
+      "problem": [
+        "diabetes 데이터에서 sex 변수의 두 그룹(이 데이터에서 sex 는 -0.0446, 0.0507 두 값만 가짐) 의",
+        "target 평균 차이의 절댓값을 소수 둘째 자리까지 출력하시오."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "6.65",
+      "code": "from sklearn.datasets import load_diabetes\ndf = load_diabetes(as_frame=True).frame\n\nsex_vals = sorted(df['sex'].unique())\ng_low  = df[df['sex'] == sex_vals[0]]['target'].mean()    # 149.02\ng_high = df[df['sex'] == sex_vals[1]]['target'].mean()    # 155.67\nanswer = round(abs(g_high - g_low), 2)\nprint(answer)                                              # 6.65",
+      "explanation": "두 sex 그룹의 target 평균 차이는 6.65 로 약간 차이가 있으나, target 표준편차(약 77) 에 비해 작은 값이라 실질적 차이는 미미합니다. 통계적 유의성을 확인하려면 추가 t-검정이 필요합니다.",
+      "tip": "이 데이터의 sex 값이 -0.0446, 0.0507 두 값만 가지는 이유는 sklearn 내장 diabetes 가 이미 평균 0, L2 norm = 1 로 표준화되어 있기 때문입니다. 원본 sex 는 이진 변수(0/1) 였습니다."
+    },
+    {
+      "id": 3,
+      "type": "code",
+      "track": "type1",
+      "category": "1유형 · 데이터 전처리",
+      "title": "bp 상위 25% 그룹의 target 평균",
+      "score": 10,
+      "problem": [
+        "bp(혈압) 상위 25% 임계값(75% 분위수) 이상인 환자들의 target 평균을 정수로 반올림하여 출력하시오."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "201",
+      "code": "from sklearn.datasets import load_diabetes\ndf = load_diabetes(as_frame=True).frame\n\nthreshold = df['bp'].quantile(0.75)             # 0.0353\nhigh_bp   = df[df['bp'] >= threshold]           # 약 111명\nanswer    = int(round(high_bp['target'].mean()))\nprint(answer)                                    # 201",
+      "explanation": "bp 상위 25% 환자의 평균 target 은 201 로, 전체 평균(152) 보다 32% 높게 나타났습니다. 다만 이 결과만으로 인과관계를 단정할 수 없으며, 회귀 분석(3유형) 으로 통제 분석이 필요합니다.",
+      "tip": "분위수 기반 필터링 빈출 패턴 — df[df['col'] >= df['col'].quantile(0.75)] 로 상위 25% 그룹 추출. 정수 반올림은 int(round(x)) 또는 round(x) (Python 3 banker's rounding 주의)."
+    },
+    {
+      "id": 4,
+      "type": "code",
+      "track": "type2",
+      "category": "2유형 · ML 모델링",
+      "title": "Diabetes 회귀 — LinearRegression vs RandomForestRegressor 비교",
+      "score": 40,
+      "problem": [
+        "diabetes 데이터의 모든 변수(10개) 를 사용하여 target 값을 예측하는 두 회귀 모델을 학습하시오.",
+        "검증 데이터에 대한 RMSE 와 R² 를 각각 출력한 뒤 어느 모델이 더 우수한지 비교하시오.",
+        "수행: train_test_split(test_size=0.2, random_state=42) → LinearRegression() / RandomForestRegressor(n_estimators=100, random_state=42).",
+        "RandomForest 의 feature_importances_ 상위 3개도 출력.",
+        "목표: 두 모델 모두 RMSE < 60, R² > 0.40."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "LR RMSE=53.85 R²=0.4526 / RF RMSE=54.33 R²=0.4428 / Top-3=['bmi','s5','bp']",
+      "code": "import numpy as np\nfrom sklearn.datasets import load_diabetes\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.ensemble import RandomForestRegressor\nfrom sklearn.metrics import mean_squared_error, r2_score\n\ndf = load_diabetes(as_frame=True).frame\nX = df.drop('target', axis=1)\ny = df['target']\nX_tr, X_va, y_tr, y_va = train_test_split(\n    X, y, test_size=0.2, random_state=42\n)\n\n# 모델 1: LinearRegression\nlr = LinearRegression()\nlr.fit(X_tr, y_tr)\npred_lr = lr.predict(X_va)\nrmse_lr = np.sqrt(mean_squared_error(y_va, pred_lr))\nr2_lr   = r2_score(y_va, pred_lr)\n\n# 모델 2: RandomForestRegressor\nrf = RandomForestRegressor(n_estimators=100, random_state=42)\nrf.fit(X_tr, y_tr)\npred_rf = rf.predict(X_va)\nrmse_rf = np.sqrt(mean_squared_error(y_va, pred_rf))\nr2_rf   = r2_score(y_va, pred_rf)\n\nprint(f'LR  -> RMSE: {rmse_lr:.2f}, R2: {r2_lr:.4f}')   # 53.85, 0.4526\nprint(f'RF  -> RMSE: {rmse_rf:.2f}, R2: {r2_rf:.4f}')   # 54.33, 0.4428\n\n# Top-3 important features (RF)\nimport_pairs = sorted(\n    zip(X.columns, rf.feature_importances_),\n    key=lambda x: -x[1]\n)\ntop3 = [name for name, _ in import_pairs[:3]]\nprint(f'Top-3 features: {top3}')                        # ['bmi', 's5', 'bp']",
+      "explanation": "흥미롭게도 LinearRegression(53.85) 이 RandomForest(54.33) 보다 약간 우수합니다. 이는 diabetes 데이터의 입력 변수와 target 사이에 선형 관계가 강하게 존재하기 때문입니다. RandomForest 는 비선형 관계나 상호작용이 풍부할 때 유리하지만, 데이터가 본질적으로 선형적이면 트리 분할 과정에서 오히려 노이즈가 추가될 수 있습니다. 다만 RandomForest 의 feature_importances_ 로 변수 중요도(bmi, s5, bp 순) 를 확인할 수 있어 모델 해석 측면에서 가치가 있습니다.",
+      "tip": "모델 선택 가이드 — LinearRegression 유리: 변수-타겟 선형 관계 강함 / 표본 작음 / 회귀계수 해석 중요. RandomForest 유리: 비선형 / 변수 간 상호작용 / 변수 중요도 / 이상치 강건성. 실무에서는 두 모델 함께 보는 것이 권장됩니다."
+    },
+    {
+      "id": 5,
+      "type": "code",
+      "track": "type3",
+      "category": "3유형 · 통계 분석",
+      "title": "단순선형회귀 — bmi → target",
+      "score": 10,
+      "problem": [
+        "bmi 를 독립변수, target 을 종속변수로 하는 단순선형회귀모형을 적합하시오.",
+        "회귀계수의 유의성을 양측 검정 (α=0.05) 으로 검정하시오.",
+        "statsmodels.api.OLS 사용 — sm.add_constant() 로 상수항 포함 필수.",
+        "출력: ① 기울기 β₁ (소수 2자리), ② t-통계량 (소수 2자리), ③ 결론 ('기각' 또는 '채택')."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "β₁ = 949.44 / t = 15.19 / 기각 (p < 0.0001)",
+      "code": "import statsmodels.api as sm\nfrom sklearn.datasets import load_diabetes\ndf = load_diabetes(as_frame=True).frame\n\n# 절편 포함\nX = sm.add_constant(df['bmi'])     # X = [1, bmi]\ny = df['target']\n\n# OLS 적합\nmodel = sm.OLS(y, X).fit()\n\n# 핵심 통계량\nbeta1   = model.params['bmi']      # 949.4353\nt_stat  = model.tvalues['bmi']     # 15.1873\np_value = model.pvalues['bmi']     # 3.47e-42\nr2      = model.rsquared           # 0.3439\n\nprint(f'beta_1 = {beta1:.2f}')         # 949.44\nprint(f't      = {t_stat:.2f}')        # 15.19\nprint(f'p      = {p_value:.4f}')       # 0.0000\nprint(f'R^2    = {r2:.4f}')            # 0.3439\nprint('기각' if p_value < 0.05 else '채택')",
+      "explanation": "단순선형회귀 모형 target = 152.13 + 949.44·bmi 에서 회귀계수 β₁ 의 t-통계량이 15.19 로 매우 큰 값이며, p-value 는 사실상 0 에 가깝습니다. 따라서 H₀(β₁=0) 을 기각하고, bmi 는 target 에 통계적으로 유의한 영향을 미친다고 결론 내립니다. 다만 R² = 0.34 로 단일 변수만으로는 설명력이 제한적이므로 다른 변수들도 함께 고려한 다중회귀가 필요합니다.",
+      "tip": "statsmodels OLS 핵심 — sm.add_constant(X): 절편 1열 추가 (필수), sm.OLS(y, X).fit(): 적합, model.params/tvalues/pvalues/rsquared, model.summary(): 전체 요약. ⚠ sklearn LinearRegression 은 t/p 값 미제공 — 통계적 추론은 반드시 statsmodels."
+    },
+    {
+      "id": 6,
+      "type": "code",
+      "track": "type3",
+      "category": "3유형 · 통계 분석",
+      "title": "다중회귀 계수 유의성 — bmi + bp + s5 → target",
+      "score": 10,
+      "problem": [
+        "bmi, bp, s5 세 변수를 독립변수로 하는 다중회귀모형을 적합하시오.",
+        "각 변수의 회귀계수가 target 에 미치는 영향이 통계적으로 유의한지 검정하시오. (양측, α=0.05)",
+        "출력: ① bmi β (소수 2자리), ② bp β (소수 2자리), ③ s5 β (소수 2자리), (확인) 세 변수 모두 p < 0.05 인지."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "bmi β = 603.08 / bp β = 262.27 / s5 β = 543.87 (모두 p < 0.0001)",
+      "code": "import statsmodels.api as sm\nfrom sklearn.datasets import load_diabetes\ndf = load_diabetes(as_frame=True).frame\n\n# 다중회귀 (3개 변수)\nX = sm.add_constant(df[['bmi', 'bp', 's5']])\ny = df['target']\nmodel = sm.OLS(y, X).fit()\n\n# 각 계수의 t, p 출력\nfor var in ['bmi', 'bp', 's5']:\n    coef = model.params[var]\n    t    = model.tvalues[var]\n    p    = model.pvalues[var]\n    print(f'{var:5s}: beta={coef:7.2f}, t={t:6.2f}, p={p:.4f}')\n# bmi  : beta= 603.08, t=  9.32, p=0.0000\n# bp   : beta= 262.27, t=  4.17, p=0.0000\n# s5   : beta= 543.87, t=  8.42, p=0.0000\n\n# 유의성 확인\nall_significant = all(model.pvalues[var] < 0.05 for var in ['bmi', 'bp', 's5'])\nprint(f'All significant (p<0.05)? {all_significant}')   # True",
+      "explanation": "다중회귀 모형 target = 152.13 + 603.08·bmi + 262.27·bp + 543.87·s5 에서 세 변수 모두 통계적으로 유의(p < 0.0001) 합니다. 각 회귀계수는 다른 변수들을 통제한 상태에서 해당 변수가 target 에 미치는 순영향(net effect, partial effect) 을 의미합니다. [3-3-1] 단순회귀에서 bmi 의 계수가 949.44 였던 것이 다중회귀에서 603.08 로 줄어든 것은, bmi 가 단독으로 가졌던 영향력의 일부가 사실은 bp 나 s5 와의 공통 분산을 통해 표현되고 있었음을 시사합니다.",
+      "tip": "부분효과(Partial Effect) — 다중회귀의 회귀계수는 다른 모든 변수를 통제한 상태에서의 순영향. 본 데이터는 입력변수가 이미 정규화되어 있어 계수 크기로 직접 비교 가능 → bmi(603) > s5(544) > bp(262) 순. 다중공선성이 심하면 회귀계수 해석 불안정 → VIF (분산팽창인자) 확인 권장."
+    },
+    {
+      "id": 7,
+      "type": "code",
+      "track": "type3",
+      "category": "3유형 · 통계 분석",
+      "title": "다중회귀 모델 전체 유의성 — F-검정",
+      "score": 10,
+      "problem": [
+        "[3-3-2] 에서 적합한 다중회귀 모델(bmi+bp+s5 → target) 이 전체적으로 통계적으로 유의한지 F-검정으로 확인하시오. (α=0.05)",
+        "모델의 설명력(R²) 을 함께 보고하시오.",
+        "출력: ① F-통계량 (소수 2자리), ② R² (소수 4자리), ③ 결론 ('기각' 또는 '채택')."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "F = 134.81 / R² = 0.4801 / 기각 (p < 0.0001)",
+      "code": "import statsmodels.api as sm\nfrom sklearn.datasets import load_diabetes\ndf = load_diabetes(as_frame=True).frame\n\nX = sm.add_constant(df[['bmi', 'bp', 's5']])\ny = df['target']\nmodel = sm.OLS(y, X).fit()\n\n# F-검정 (모델 전체 유의성)\nf_stat   = model.fvalue          # 134.8137\nf_pvalue = model.f_pvalue        # 7.16e-62\nr2       = model.rsquared        # 0.4801\nadj_r2   = model.rsquared_adj    # 0.4765\n\nprint(f'F-statistic = {f_stat:.2f}')      # 134.81\nprint(f'F p-value   = {f_pvalue:.4f}')    # 0.0000\nprint(f'R^2         = {r2:.4f}')          # 0.4801\nprint(f'adj R^2     = {adj_r2:.4f}')      # 0.4765\nprint('기각' if f_pvalue < 0.05 else '채택')",
+      "explanation": "F-통계량 134.81, p < 0.0001 로 H₀(모든 회귀계수가 0) 을 기각합니다. 즉, 다중회귀 모델 전체가 통계적으로 유의하며 적어도 하나의 변수는 target 예측에 의미 있는 기여를 합니다. R² = 0.4801 은 세 변수(bmi, bp, s5) 만으로 target 변동의 48% 를 설명함을 뜻합니다 — [3-3-1] 의 단순회귀 R²(0.34) 대비 14%p 향상되었습니다. Adjusted R² = 0.4765 도 R² 와 거의 같아 추가된 변수들이 모두 의미 있는 정보를 제공함을 보여줍니다.",
+      "tip": "F-검정 vs 개별 t-검정 — F-검정은 '모델 자체의 의미'(모든 β=0 vs 적어도 하나≠0), t-검정은 '각 변수의 부분 기여'. F-검정이 유의하지 않으면 개별 t-검정도 일반적으로 유의하지 않음. R² vs adj R² — R² 는 변수 추가 시 항상 증가(의미 없는 변수도 R² 를 약간 올림), adj R² 는 변수 개수 페널티(모델 비교에 적합)."
+    }
+  ]
+}
