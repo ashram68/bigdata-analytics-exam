@@ -1,0 +1,124 @@
+{
+  "examId": "exam-02",
+  "title": "2회차 모의고사 — Iris (붓꽃 분류) 데이터 기반",
+  "subtitle": "작업형 1·2·3유형 정답 및 해설",
+  "dataset": "sklearn.datasets.load_iris()",
+  "datasetSource": "sklearn 내장 (UCI ML Iris 데이터셋)",
+  "prerequisiteCode": "import pandas as pd\nimport numpy as np\nfrom sklearn.datasets import load_iris\nimport warnings\nwarnings.filterwarnings('ignore')\n\n# 2회차 공통 데이터 — sklearn 내장 Iris (5컬럼 표준 구조)\niris = load_iris(as_frame=True).frame\niris.columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'target']\niris['species'] = iris['target'].map({0: 'setosa', 1: 'versicolor', 2: 'virginica'})\niris = iris[['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'species']]\n\nprint(iris.shape)              # (150, 5)\nprint(iris['species'].value_counts())",
+  "questions": [
+    {
+      "id": 1,
+      "type": "code",
+      "track": "type1",
+      "category": "1유형 · 데이터 전처리",
+      "title": "sepal_length 의 중앙값 + 평균",
+      "score": 10,
+      "problem": [
+        "Iris 데이터에서 sepal_length 컬럼의 중앙값과 평균을 더한 값을 구하시오.",
+        "결과를 정수로 변환(버림) 하여 출력하시오."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "11",
+      "code": "from sklearn.datasets import load_iris\niris = load_iris(as_frame=True).frame\niris.columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'target']\niris['species'] = iris['target'].map({0: 'setosa', 1: 'versicolor', 2: 'virginica'})\niris = iris[['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'species']]\n\n# ① 중앙값과 평균\nmedian_sl = iris['sepal_length'].median()       # 5.8\nmean_sl   = iris['sepal_length'].mean()         # 5.8433\n\n# ② 더한 값을 버림\nanswer = int(median_sl + mean_sl)               # int(11.6433) = 11\nprint(answer)   # 11",
+      "explanation": "중앙값(5.8) 과 평균(5.8433) 이 거의 비슷합니다. 두 값을 더하면 11.6433 이며 int() 로 버림하면 11 입니다. 중앙값과 평균이 비슷하다는 것은 분포가 거의 대칭임을 시사하며, Iris 의 sepal_length 가 종 간 균등하게 분포한 자연 데이터의 특성을 보여줍니다.",
+      "tip": "중앙값 ≈ 평균: 대칭 분포(정규에 가까움). 평균 > 중앙값: 우측 꼬리가 긴 분포(positive skew). 평균 < 중앙값: 좌측 꼬리가 긴 분포(negative skew)."
+    },
+    {
+      "id": 2,
+      "type": "code",
+      "track": "type1",
+      "category": "1유형 · 데이터 전처리",
+      "title": "species 별 petal_length 평균 차이",
+      "score": 10,
+      "problem": [
+        "species 별 petal_length 의 평균을 구하시오.",
+        "(virginica 의 평균) - (setosa 의 평균) 의 차이를 반올림하여 정수로 출력하시오."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "4",
+      "code": "from sklearn.datasets import load_iris\niris = load_iris(as_frame=True).frame\niris.columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'target']\niris['species'] = iris['target'].map({0: 'setosa', 1: 'versicolor', 2: 'virginica'})\n\n# ① species 별 petal_length 평균\npl_by_sp = iris.groupby('species')['petal_length'].mean()\n# species\n# setosa        1.462\n# versicolor    4.260\n# virginica     5.552\n\n# ② virginica - setosa\ndiff = pl_by_sp['virginica'] - pl_by_sp['setosa']    # 4.090\n\n# ③ 반올림하여 정수\nanswer = round(diff)        # 4\nprint(answer)   # 4",
+      "explanation": "virginica(5.55cm) 와 setosa(1.46cm) 의 petal_length 차이는 약 4.09cm 이며 반올림 정수는 4 입니다. 꽃잎 길이가 꽃 종을 가르는 가장 강력한 변수임을 보여주며, Iris 분류 모델에서 petal 변수의 feature_importance 가 항상 sepal 보다 높은 이유입니다.",
+      "tip": "round() vs int() — round(4.09)=4 (반올림), int(4.09)=4 (소수점 절단=양수에서 버림). int(-4.09)=-4 vs math.floor(-4.09)=-5 (음수에서 다름). round(4.5)=4, round(2.5)=2 (Python 3 banker's rounding! 5는 짝수로). 시험에서 '반올림'은 round(), '버림'은 int() 또는 math.floor()."
+    },
+    {
+      "id": 3,
+      "type": "code",
+      "track": "type1",
+      "category": "1유형 · 데이터 전처리",
+      "title": "조건부 필터링 + 합계",
+      "score": 10,
+      "problem": [
+        "sepal_width 가 전체 평균 이상인 행들을 필터링하시오.",
+        "필터링된 행들의 petal_width 합계를 소수 둘째 자리까지 반올림하여 출력하시오."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "60.8",
+      "code": "from sklearn.datasets import load_iris\niris = load_iris(as_frame=True).frame\niris.columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'target']\niris['species'] = iris['target'].map({0: 'setosa', 1: 'versicolor', 2: 'virginica'})\n\n# ① sepal_width 전체 평균\nmean_sw = iris['sepal_width'].mean()                 # 3.0573\n\n# ② sepal_width >= 평균 행 필터링\nfiltered = iris[iris['sepal_width'] >= mean_sw]      # 67개 행\n\n# ③ petal_width 합계 → 소수 둘째 자리 반올림\nanswer = round(filtered['petal_width'].sum(), 2)     # 60.8\nprint(answer)   # 60.8",
+      "explanation": "sepal_width(꽃받침 너비) 평균(3.06cm) 이상인 67개 행에서 petal_width 합계는 60.80cm 입니다. 이 결과는 sepal_width 조건을 기준으로 데이터를 필터링한 뒤 petal_width 값을 합산한 것이며, 상관관계 자체를 판단하려면 별도의 상관계수 계산이 필요합니다.",
+      "tip": "조건부 합계 빈출 패턴: df[df['col1'] >= 임계값]['col2'].sum() 한 줄로 'col1 조건을 만족하는 행에서 col2 의 합' 을 표현. 동등한 표현 — df.query('col1 >= @임계값')['col2'].sum()"
+    },
+    {
+      "id": 4,
+      "type": "code",
+      "track": "type2",
+      "category": "2유형 · ML 모델링",
+      "title": "Iris 다중 클래스 분류",
+      "score": 40,
+      "problem": [
+        "Iris 데이터를 3개 클래스(setosa / versicolor / virginica) 로 분류하는 모델을 학습시키고, 검증 데이터에 대한 정확도(accuracy) 를 출력하시오.",
+        "사용 변수: sepal_length, sepal_width, petal_length, petal_width.",
+        "타겟: species 문자열을 정수 인코딩 (LabelEncoder 또는 map).",
+        "train_test_split(test_size=0.2, random_state=42, stratify=y).",
+        "RandomForestClassifier(n_estimators=100, random_state=42).",
+        "검증 데이터 정확도 출력. 목표 accuracy ≥ 0.85."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "Accuracy ≈ 0.9000 (목표 ≥ 0.85 통과)",
+      "code": "import pandas as pd\nfrom sklearn.datasets import load_iris\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.ensemble import RandomForestClassifier\n\n# 데이터 로드 (5컬럼 표준)\niris = load_iris(as_frame=True).frame\niris.columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'target']\niris['species'] = iris['target'].map({0: 'setosa', 1: 'versicolor', 2: 'virginica'})\niris = iris[['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'species']]\n\n# X, y 분리 (species 문자열 → 정수 인코딩)\nX = iris[['sepal_length', 'sepal_width', 'petal_length', 'petal_width']]\ny = iris['species'].map({'setosa': 0, 'versicolor': 1, 'virginica': 2})\n\n# 학습/검증 분할\nX_tr, X_va, y_tr, y_va = train_test_split(\n    X, y, test_size=0.2, random_state=42, stratify=y\n)\n\n# 모델 학습\nrf = RandomForestClassifier(n_estimators=100, random_state=42)\nrf.fit(X_tr, y_tr)\n\n# 정확도 평가\nacc = rf.score(X_va, y_va)\nprint(f'Accuracy: {acc:.4f}')   # 0.9000",
+      "explanation": "RandomForest 기본 설정으로 검증 정확도 90% 를 달성했습니다. Iris 는 클래스 간 분리가 명확한 대표적 분류 데이터로, 30개 검증 샘플 중 27개를 정확히 분류했습니다. 오분류는 주로 versicolor 와 virginica 사이에서 발생하며(setosa 는 거의 완벽 분리), feature_importances_ 확인 시 petal_length·petal_width 가 sepal 변수보다 압도적으로 중요합니다 (약 87% vs 13%).",
+      "tip": "다중 분류 평가지표 옵션 정리 (시험 빈출) — accuracy_score: 옵션 불필요 / f1_score, precision_score, recall_score: average='macro'|'weighted'|'micro' 必 / roc_auc_score: multi_class='ovr'|'ovo' + average='macro' 必. macro 는 클래스별 F1 단순 평균(균등 반영), weighted 는 샘플 수 가중(불균형 데이터), micro 는 전체 TP/FP/FN 합산(다중 분류에서는 accuracy 와 동일)."
+    },
+    {
+      "id": 5,
+      "type": "code",
+      "track": "type3",
+      "category": "3유형 · 통계 분석",
+      "title": "setosa vs versicolor sepal_length 비교 (독립표본 t-검정)",
+      "score": 15,
+      "problem": [
+        "Iris 데이터에서 setosa 와 versicolor 종의 sepal_length 평균이 다른지 독립표본 t-검정으로 검정하시오. (양측, α=0.05)",
+        "수행 절차: Levene 등분산 검정 → 결과에 따라 ttest_ind(equal_var=...) 적용.",
+        "출력: ① t 통계량 (소수 2자리), ② p-value (소수 4자리), ③ 결론 ('기각' 또는 '채택')."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "t = -10.52 / p = 0.0000 (p < 0.0001) / 기각",
+      "code": "from sklearn.datasets import load_iris\nfrom scipy import stats\nimport numpy as np\n\niris = load_iris(as_frame=True).frame\niris.columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'target']\niris['species'] = iris['target'].map({0: 'setosa', 1: 'versicolor', 2: 'virginica'})\n\n# 두 그룹 추출\ng1 = iris[iris['species']=='setosa']['sepal_length']\ng2 = iris[iris['species']=='versicolor']['sepal_length']\n\n# ① Levene 등분산성 검정\nlev_p = stats.levene(g1, g2).pvalue                       # 0.0052\nequal_var = (lev_p >= 0.05)                               # False → 이분산\nprint(f'Levene p = {lev_p:.4f} → 이분산 → Welch 적용')\n\n# ② 독립표본 t-검정 (Welch's t-test)\nt_stat, p_value = stats.ttest_ind(g1, g2, equal_var=equal_var)\n\n# ③ 효과 크기 Cohen's d (참고)\nn1, n2 = len(g1), len(g2)\ns1, s2 = g1.std(ddof=1), g2.std(ddof=1)\npooled = np.sqrt(((n1-1)*s1**2 + (n2-1)*s2**2) / (n1+n2-2))\nd = (g1.mean() - g2.mean()) / pooled                      # -2.1042\n\nprint(f't = {t_stat:.2f}')              # -10.52\nprint(f'p = {p_value:.4f}')             # 0.0000\nprint(f\"d = {d:.4f}\")                   # -2.1042\nprint('기각' if p_value < 0.05 else '채택')",
+      "explanation": "setosa(평균 5.01) 와 versicolor(평균 5.94) 의 sepal_length 차이는 약 0.93cm 로 t = -10.52, p < 0.0001 입니다. Levene 검정 결과 p=0.0052 < 0.05 로 분산이 다르므로 Welch's t-test (equal_var=False) 를 사용합니다. Cohen's d = -2.10 은 매우 큰 효과 크기로, 두 종 간 sepal_length 분포가 거의 겹치지 않을 정도로 다릅니다. 이러한 강한 분리력 때문에 sepal_length 만으로도 setosa 와 versicolor 를 거의 완벽 구분할 수 있습니다.",
+      "tip": "Cohen's d 해석 — 0.2(작음) / 0.5(중간) / 0.8(큼) / 1.2 이상(매우 큼). p-value 가 작더라도 d 가 작으면 '통계적으로는 유의하나 실질적 차이는 미미' 한 경우가 있어 효과 크기 보고가 필수입니다. p-value 가 매우 작아 0.0000 으로 출력되면 학술 보고 시 'p < 0.0001' 로 표기."
+    },
+    {
+      "id": 6,
+      "type": "code",
+      "track": "type3",
+      "category": "3유형 · 통계 분석",
+      "title": "sepal_length ↔ petal_length 상관관계 (Pearson)",
+      "score": 15,
+      "problem": [
+        "sepal_length 와 petal_length 사이의 피어슨 상관계수와 그 유의성을 검정하시오. (α=0.05)",
+        "stats.pearsonr(x, y) 사용 — r 과 p-value 동시 반환.",
+        "출력: ① 상관계수 r (소수 4자리), ② p-value (소수 4자리), ③ 결론 (상관 강도 + 유의성)."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "r = 0.8718 / p = 0.0000 (p < 0.0001) / 유의한 양의 상관",
+      "code": "from sklearn.datasets import load_iris\nfrom scipy import stats\n\niris = load_iris(as_frame=True).frame\niris.columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'target']\n\n# Pearson 상관 + 유의성 검정\nr, p_value = stats.pearsonr(iris['sepal_length'], iris['petal_length'])\n\nprint(f'r = {r:.4f}')                   # 0.8718\nprint(f'p = {p_value:.4f}')             # 0.0000\n\n# 결론\nif p_value < 0.05 and r > 0:\n    print('유의한 양의 상관')\nelif p_value < 0.05 and r < 0:\n    print('유의한 음의 상관')\nelse:\n    print('유의하지 않음')",
+      "explanation": "r = 0.87 은 매우 강한 양의 상관관계입니다. 꽃받침이 긴 꽃은 꽃잎도 길다는 뜻으로, 식물학적으로 꽃 전체 크기가 비례적으로 변하는 자연스러운 현상입니다. p < 0.0001 로 우연이 아님이 확실하며, 회귀 분석 시 sepal_length 를 활용해 petal_length 예측이 가능합니다. 단, 상관관계가 인과관계를 의미하지 않음에 항상 유의해야 합니다.",
+      "tip": "상관계수 r 의 강도 해석 — |r| < 0.3 (약한 상관), 0.3 ≤ |r| < 0.7 (중간 상관), |r| ≥ 0.7 (강한 상관). scipy.stats.pearsonr 는 r 과 p-value 를 동시에 반환합니다. 서열형 변수의 상관은 stats.spearmanr, 카테고리 변수 상관은 stats.kendalltau 를 사용합니다."
+    }
+  ]
+}
