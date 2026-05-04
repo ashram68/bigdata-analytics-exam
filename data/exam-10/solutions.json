@@ -1,0 +1,121 @@
+{
+  "examId": "exam-10",
+  "title": "10회차 모의고사 — Breast Cancer 분류 + 통계 가정 점검",
+  "subtitle": "작업형 1·2·3유형 정답 및 해설",
+  "dataset": "sklearn.datasets.load_breast_cancer() + train.csv / test.csv (사이트 호스팅, 2유형 한정)",
+  "datasetSource": "sklearn 내장 Breast Cancer Wisconsin (569명 × 31). 1·3유형은 sklearn 원본 569행 전체 사용, 2유형은 train.csv (455행) → test.csv (114행) → result.csv 제출",
+  "prerequisiteCode": "# 10회차 데이터 로드 — 유형별로 다름\n# (1·3유형) sklearn 원본 569행\n# (2유형) train.csv → test.csv → result.csv 제출\n\nimport pandas as pd\nimport numpy as np\nfrom sklearn.datasets import load_breast_cancer\nimport warnings\nwarnings.filterwarnings('ignore')\n\nBASE = 'https://raw.githubusercontent.com/ashram68/bigdata-analytics-exam/main/data/exam-10/'\n\n# 1·3유형용 — sklearn 원본\nbc = load_breast_cancer(as_frame=True).frame\nbc.columns = [c.replace(' ', '_') for c in bc.columns]\n\n# 2유형용 — 사이트 호스팅 CSV\ntrain = pd.read_csv(BASE + 'train.csv')   # (455, 32)\ntest  = pd.read_csv(BASE + 'test.csv')    # (114, 31)",
+  "questions": [
+    {
+      "id": 1,
+      "type": "code",
+      "track": "type1",
+      "category": "1유형 · 데이터 전처리",
+      "title": "상관계수 절댓값의 합 — mean_* 10개와 target",
+      "score": 10,
+      "problem": [
+        "BC 데이터에서 'mean_' 으로 시작하는 10개 변수와 target 변수 간 피어슨 상관계수의 절댓값을 구하고, 그 합을 소수 4자리로 출력하시오.",
+        "각 변수의 상관계수에 abs() 적용 후 sum()"
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "5.3682",
+      "code": "import pandas as pd\nfrom sklearn.datasets import load_breast_cancer\n\nbc = load_breast_cancer(as_frame=True).frame\nbc.columns = [c.replace(' ', '_') for c in bc.columns]\n\n# 'mean_' 으로 시작하는 컬럼만 선택 (10개)\nmean_cols = [c for c in bc.columns if c.startswith('mean_')]\n\n# 각 변수와 target 의 상관계수 → 절댓값 → 합산\nabs_sum = sum(abs(bc[c].corr(bc['target'])) for c in mean_cols)\nanswer  = round(abs_sum, 4)\nprint(answer)                # 5.3682\n\n# 더 간결한 방법:\n# answer = round(bc[mean_cols].corrwith(bc['target']).abs().sum(), 4)",
+      "explanation": "mean_* 10개 변수와 target 의 상관계수 절댓값 합은 약 5.37 입니다. 평균적으로 변수당 |r| ≈ 0.54 로, 모든 mean_* 변수가 target 과 의미 있는 선형 관계를 갖습니다. 절댓값을 사용하는 이유는 음의 상관(예: mean_radius 와 target 은 r ≈ -0.73) 도 동등한 예측력을 가지기 때문입니다. 개별 상관계수가 가장 큰 변수는 mean_concave_points (|r| ≈ 0.78), mean_perimeter (|r| ≈ 0.74), mean_radius (|r| ≈ 0.73) 순입니다. 작업형 2유형 분류 모델에서 어떤 변수가 중요할지 사전 예측하는 데 유용한 정보.",
+      "tip": "상관계수 산출 방법 — Series 간: a.corr(b). 한 컬럼 vs 전체: df.corrwith(target). 행렬 전체: df.corr(). 절댓값 합계의 의미 — 변수 그룹의 '총 영향력' 측정, ML 모델에서 변수 그룹별 중요도 사전 추정, 부호와 무관하게 예측력만 평가하고자 할 때 유용. 응용: corrwith 로 한 줄에 처리 가능 (bc[mean_cols].corrwith(bc['target']).abs().sum())."
+    },
+    {
+      "id": 2,
+      "type": "code",
+      "track": "type1",
+      "category": "1유형 · 데이터 전처리",
+      "title": "표준화(Standardization) 후 카운트 — mean_radius z≥1 행 수",
+      "score": 10,
+      "problem": [
+        "BC 데이터의 mean_radius 컬럼을 표준화(평균 0, 표준편차 1) 한 후, 표준화 값(z-score) 이 1 이상인 행의 개수를 정수로 출력하시오.",
+        "z = (x - mean) / std (pandas .std() 는 ddof=1 기본). z ≥ 1 인 행 수를 int 로 출력."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "100",
+      "code": "import pandas as pd\nfrom sklearn.datasets import load_breast_cancer\n\nbc = load_breast_cancer(as_frame=True).frame\nbc.columns = [c.replace(' ', '_') for c in bc.columns]\n\n# 표준화: z = (x - mean) / std\nmu = bc['mean_radius'].mean()\nsd = bc['mean_radius'].std()       # 기본 ddof=1\nz  = (bc['mean_radius'] - mu) / sd\n\nanswer = int((z >= 1).sum())\nprint(answer)                # 100",
+      "explanation": "mean_radius 표준화 후 z ≥ 1 (즉, 평균보다 1σ 이상 큰) 환자는 100명입니다. 정규분포라면 약 16% (z ≥ 1) 가 기대되지만, 569명 중 100명 = 17.6% 로 약간 더 많습니다. 이는 mean_radius 분포가 우측으로 약간 치우쳤음(skewed) 을 시사하며, 큰 종양일수록 악성일 가능성이 높음을 반영합니다.",
+      "tip": "표준화 vs 정규화 — 표준화: z = (x - μ) / σ → 평균 0, 표준편차 1. Min-Max 정규화: (x - min) / (max - min) → 0~1 범위. Robust Scaling: (x - median) / IQR → 이상치에 강함. ddof 차이 — pandas .std() 는 ddof=1 (표본 표준편차), numpy .std() / sklearn StandardScaler 는 ddof=0 (모집단). 본 문제(z≥1 카운트) 는 어느 쪽이든 결과 동일(100). 표준화 의미 — 단위가 다른 변수를 비교 가능하게, KNN/SVM/로지스틱 회귀 등 거리 기반 모델에 필수, 트리 기반 모델(RF, GBM) 에는 불필요."
+    },
+    {
+      "id": 3,
+      "type": "code",
+      "track": "type1",
+      "category": "1유형 · 데이터 전처리",
+      "title": "파생 변수 생성 후 평균 — radius_diff = worst_radius - mean_radius",
+      "score": 10,
+      "problem": [
+        "BC 데이터에서 worst_radius 와 mean_radius 를 사용하여 새로운 파생 변수 radius_diff = worst_radius - mean_radius 를 만들고, 이 파생 변수의 평균을 소수 4자리로 출력하시오."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "2.1419",
+      "code": "import pandas as pd\nfrom sklearn.datasets import load_breast_cancer\n\nbc = load_breast_cancer(as_frame=True).frame\nbc.columns = [c.replace(' ', '_') for c in bc.columns]\n\n# 파생 변수 생성\nbc['radius_diff'] = bc['worst_radius'] - bc['mean_radius']\n\nanswer = round(bc['radius_diff'].mean(), 4)\nprint(answer)                # 2.1419",
+      "explanation": "worst_radius - mean_radius 의 평균은 약 2.14 입니다. 이는 '같은 환자에서 종양의 가장 큰 부위가 평균 부위보다 평균 2.14 만큼 크다' 는 의미로, 종양의 이질성(heterogeneity) 을 정량화한 지표입니다. 이 차이가 클수록 종양이 비균일하게 자랐다는 뜻이며, 이는 악성의 특징입니다. 실제로 이 파생변수는 mean_radius 나 worst_radius 단독보다 더 강한 진단 정보를 가질 수 있습니다.",
+      "tip": "파생 변수 생성 패턴 — 차이: a - b (이질성, 변화량) / 비율: a / b (상대 크기) / 합: a + b (총합) / 곱: a * b (상호작용) / 다항: a ** 2 (비선형) / 비닝: pd.cut(a, bins=...) (연속 → 범주). 좋은 파생변수의 특징 — 도메인 지식 기반 (예: BMI = 체중/키², family_size = sibsp + parch), 원본 변수보다 target 과 더 강한 관계, 비선형 관계를 선형으로 변환, 다중공선성 줄이기 (worst·mean 대신 그 차이만 사용)."
+    },
+    {
+      "id": 4,
+      "type": "code",
+      "track": "type2",
+      "category": "2유형 · ML 모델링",
+      "title": "Breast Cancer 분류 (GradientBoostingClassifier, result.csv 제출)",
+      "score": 40,
+      "problem": [
+        "학습용 데이터(train.csv) 의 30개 변수를 사용하여 종양의 양성/악성(target) 을 예측하는 분류 모델을 만드시오. 학습된 모델로 평가용 데이터(test.csv) 에 대한 예측 확률을 산출하고, 그 결과를 result.csv 파일로 저장하시오.",
+        "수행 권장: GradientBoostingClassifier(n_estimators=100, random_state=42). 다른 모델(RF, XGBoost 등) 사용 자유.",
+        "수행: X = train.drop(['ID','target'], axis=1) / y = train['target'] / 검증 분할(test_size=0.2, random_state=42, stratify=y) 로 검증 AUC 확인 / 전체 학습 후 test 예측 확률 → result.csv (ID + pred, 114행)",
+        "목표: AUC ≥ 0.95. 제출 형식: 헤더 포함, 컬럼 ID + pred, pred 는 target=1(양성) 일 예측 확률"
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "AUC ≈ 0.9907 (평가용) / 검증 AUC ≈ 0.9884",
+      "code": "import pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.ensemble import GradientBoostingClassifier\nfrom sklearn.metrics import roc_auc_score\n\nBASE  = 'https://raw.githubusercontent.com/ashram68/bigdata-analytics-exam/main/data/exam-10/'\ntrain = pd.read_csv(BASE + 'train.csv')\ntest  = pd.read_csv(BASE + 'test.csv')\n\n# 1) 입력/타겟 분리 (ID 제외)\nX      = train.drop(['ID', 'target'], axis=1)\ny      = train['target']\nX_test = test.drop('ID', axis=1)\n\n# 2) 검증 분할로 성능 확인\nX_t, X_v, y_t, y_v = train_test_split(\n    X, y, test_size=0.2, random_state=42, stratify=y\n)\ngb = GradientBoostingClassifier(n_estimators=100, random_state=42)\ngb.fit(X_t, y_t)\nval_auc = roc_auc_score(y_v, gb.predict_proba(X_v)[:, 1])\nprint(f'검증 AUC: {val_auc:.4f}')   # 0.9884\n\n# 3) 전체 학습 → 평가용 예측\ngb_final = GradientBoostingClassifier(n_estimators=100, random_state=42)\ngb_final.fit(X, y)\ntest_proba = gb_final.predict_proba(X_test)[:, 1]\n\n# 4) result.csv 저장 (ID + pred)\nresult = pd.DataFrame({'ID': test['ID'], 'pred': test_proba})\nresult.to_csv('result.csv', index=False)\n\n# (선택) 자가 채점 — 모의고사 플랫폼 한정\nanswer = pd.read_csv(BASE + 'test_answer.csv')\nmerged = answer.merge(result, on='ID')\nprint(f\"평가용 AUC: {roc_auc_score(merged['target'], merged['pred']):.4f}\")  # 0.9907",
+      "explanation": "GradientBoostingClassifier 로 AUC 0.99 의 거의 완벽한 분류 성능을 달성했습니다. Breast Cancer 데이터는 변수 간 분리력이 매우 강해(feature_importances_ 에서 worst_perimeter, worst_concave_points 가 압도적으로 중요), 단순한 모델로도 높은 성능을 얻을 수 있습니다. 검증 AUC(0.9884) 와 평가용 AUC(0.9907) 가 거의 같은 것은 모델이 안정적으로 일반화됨을 의미합니다.",
+      "tip": "RF vs GBM 차이 — RF: 병렬 학습, robust, 빠름, 기본 성능 우수. GBM: 순차 학습(이전 오류 보정), 더 정밀하나 overfitting 위험. 작은 검증셋(n=91) 에서는 두 모델 차이가 우연일 수 있음 → CV 로 확인 권장. BC 데이터의 중요 변수 — worst_perimeter, worst_concave_points, worst_radius (종양의 '최악' 부위 측정값), mean_concave_points, mean_radius (종양의 '평균' 측정값). 10-1-1 상관계수 절댓값 합 결과와 일관됨. result.csv 제출 시 분류는 predict_proba()[:, 1] 의 확률을 저장 (predict() 의 0/1 저장 시 AUC 채점에서 점수 손실)."
+    },
+    {
+      "id": 5,
+      "type": "code",
+      "track": "type3",
+      "category": "3유형 · 통계 분석 (가정 점검)",
+      "title": "정규성 검정 (Shapiro-Wilk) — target 그룹별 mean_radius",
+      "score": 15,
+      "problem": [
+        "BC 데이터에서 target 그룹별(0=악성, 1=양성) 로 mean_radius 의 정규성을 Shapiro-Wilk 검정으로 확인하시오.",
+        "가설: H0 데이터가 정규분포를 따른다 / H1 데이터가 정규분포를 따르지 않는다",
+        "출력: ① target=0 의 W, p / ② target=1 의 W, p / ③ 그룹별 결론"
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "target=0: W=0.9777, p=0.0019 (기각, 정규 아님) / target=1: W=0.9967, p=0.6680 (채택, 정규)",
+      "code": "import pandas as pd\nfrom sklearn.datasets import load_breast_cancer\nfrom scipy import stats\n\nbc = load_breast_cancer(as_frame=True).frame\nbc.columns = [c.replace(' ', '_') for c in bc.columns]\n\n# 그룹 분리\ng0 = bc[bc['target']==0]['mean_radius']   # 악성 (212명)\ng1 = bc[bc['target']==1]['mean_radius']   # 양성 (357명)\n\n# Shapiro-Wilk 정규성 검정\nw0, p0 = stats.shapiro(g0)\nw1, p1 = stats.shapiro(g1)\n\nprint(f'target=0: W={w0:.4f}, p={p0:.4f}')   # W=0.9777, p=0.0019\nprint(f'target=1: W={w1:.4f}, p={p1:.4f}')   # W=0.9967, p=0.6680\n\nalpha = 0.05\nprint('target=0:', '정규 아님(기각)' if p0 < alpha else '정규(채택)')\nprint('target=1:', '정규 아님(기각)' if p1 < alpha else '정규(채택)')",
+      "explanation": "두 그룹의 정규성 결과가 흥미롭게 대비됩니다. target=1(양성) 은 p=0.6680 으로 정규성을 만족하지만, target=0(악성) 은 p=0.0019 로 정규성을 만족하지 않습니다. 이는 양성 종양은 비교적 균질한 크기 분포를 보이지만, 악성 종양은 크기 변동이 크고 분포가 비대칭(skewed) 임을 시사합니다. 의학적으로도 악성 종양은 진행 단계에 따라 크기가 매우 다양해지는 특징이 있어 자연스러운 결과입니다. 실무 의미 — 두 그룹을 비교하는 t-test 를 수행할 때 한 그룹이라도 정규성을 위반하면 비모수 검정(Mann-Whitney U test, stats.mannwhitneyu) 으로 전환을 고려해야 합니다.",
+      "tip": "Shapiro-Wilk 검정의 특징 — 가장 강력한 정규성 검정 중 하나 (작은~중간 표본 권장). n ≥ 5000 이면 사용 비추천 (큰 표본에서는 약간의 비정규성에도 민감하게 반응 → 시각적 확인 병행). 정규성 검정 종류 — stats.shapiro (n<5000), stats.normaltest (D'Agostino-Pearson), stats.kstest (Kolmogorov-Smirnov), stats.anderson (Anderson-Darling). 정규성 위반 시 대안 — 단일/독립 표본 평균 비교: Mann-Whitney U (mannwhitneyu), 대응표본: Wilcoxon (wilcoxon), 3그룹 이상: Kruskal-Wallis (kruskal), 데이터 변환: log, sqrt, Box-Cox 등으로 정규에 가깝게 만든 후 재검정."
+    },
+    {
+      "id": 6,
+      "type": "code",
+      "track": "type3",
+      "category": "3유형 · 통계 분석 (가정 점검)",
+      "title": "등분산성 검정 (Levene) — target 그룹별 mean_radius 분산",
+      "score": 15,
+      "problem": [
+        "BC 데이터에서 target 그룹별(0=악성, 1=양성) 로 mean_radius 의 분산이 같은지 Levene 검정으로 확인하시오.",
+        "가설: H0 두 그룹의 분산이 같다 (등분산) / H1 두 그룹의 분산이 다르다 (이분산)",
+        "출력: ① 검정 통계량 (소수 4자리), ② p-value (소수 4자리), ③ 결론 ('등분산' 또는 '등분산 아님')"
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "stat = 90.48 / p < 0.0001 / 등분산 아님 (귀무가설 기각)",
+      "code": "from sklearn.datasets import load_breast_cancer\nfrom scipy import stats\n\nbc = load_breast_cancer(as_frame=True).frame\nbc.columns = [c.replace(' ', '_') for c in bc.columns]\ng0 = bc[bc['target']==0]['mean_radius']   # 악성\ng1 = bc[bc['target']==1]['mean_radius']   # 양성\n\n# Levene 등분산성 검정\nstat, p = stats.levene(g0, g1)\n\nprint(f'stat = {stat:.4f}')        # 90.4771\nprint(f'p    = {p:.4f}')           # 0.0000 (실제 5.28e-20)\n\nalpha = 0.05\nprint('등분산 아님(기각)' if p < alpha else '등분산(채택)')\n\n# [참고] 두 그룹의 실제 분산 비교\nprint(f'var(target=0) = {g0.var(ddof=1):.4f}')   # 약 10.27 (악성 분산 큼)\nprint(f'var(target=1) = {g1.var(ddof=1):.4f}')   # 약 3.17  (양성 분산 작음)",
+      "explanation": "Levene 통계량 90.48, p < 0.0001 로 두 그룹의 분산이 매우 유의하게 다릅니다. 실제 분산을 보면 악성(var ≈ 10.27) 이 양성(var ≈ 3.17) 보다 약 3배 더 큽니다. 즉 악성 종양은 크기 변동이 크고, 양성 종양은 비교적 균일한 크기를 보입니다. 실무 의미 — 이 결과는 [10-3-1] 정규성 검정과 함께 '두 그룹 비교에 표준 t-test (stats.ttest_ind, equal_var=True) 는 부적합' 하다는 결론으로 이어집니다. 대안은 Welch's t-test (equal_var=False) 또는 비모수 검정.",
+      "tip": "Levene 검정의 특징 — 정규성 가정에 robust (정규성 위반에도 사용 가능), 두 그룹 이상에서 모두 사용 가능, Bartlett 검정보다 정규성 위반에 덜 민감 (실무 권장). 등분산성 검정 종류 — stats.levene (정규성 robust, 권장), stats.bartlett (정규성 가정 필요), stats.fligner (정규성에 가장 robust). 등분산 위반 시 대안 — t-test → Welch's t-test (ttest_ind(g1, g2, equal_var=False)), ANOVA → Welch's ANOVA 또는 Brown-Forsythe. 실전 워크플로우 (t-test 수행 시) — 1) Shapiro 정규성 확인, 2) Levene 등분산성 확인, 3) 둘 다 만족 → 표준 t-test, 4) 등분산만 위반 → Welch's t-test, 5) 정규성 위반 → 비모수."
+    }
+  ]
+}
