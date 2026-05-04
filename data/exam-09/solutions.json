@@ -1,0 +1,117 @@
+{
+  "examId": "exam-09",
+  "title": "9회차 모의고사 — Wine alcohol 회귀 예측",
+  "subtitle": "작업형 1·2·3유형 정답 및 해설",
+  "dataset": "sklearn.datasets.load_wine() (회귀 변환) + train.csv / test.csv (사이트 호스팅)",
+  "datasetSource": "sklearn 내장 Wine (178행 × 14, 4회차와 동일) 의 alcohol 을 target 으로 사용. 1·2유형은 train.csv (142행, ID + 12변수 + alcohol), 2유형 평가는 test.csv (36행, alcohol 미포함), 3유형은 sklearn 원본 178행 전체 사용",
+  "prerequisiteCode": "# 9회차 데이터 로드 — 유형별로 다름\n# (1·2유형) train.csv → test.csv → result.csv 제출\n# (3유형) sklearn 원본 데이터 178행 전체\n\nimport pandas as pd\nimport numpy as np\nfrom sklearn.datasets import load_wine\nimport warnings\nwarnings.filterwarnings('ignore')\n\nBASE = 'https://raw.githubusercontent.com/ashram68/bigdata-analytics-exam/main/data/exam-09/'\n\n# 1·2유형용 — 사이트 호스팅 CSV\ntrain = pd.read_csv(BASE + 'train.csv')   # (142, 14)\ntest  = pd.read_csv(BASE + 'test.csv')    # (36, 13)\n\n# 3유형용 — sklearn 원본\nwine = load_wine(as_frame=True).frame      # (178, 14)",
+  "questions": [
+    {
+      "id": 1,
+      "type": "code",
+      "track": "type1",
+      "category": "1유형 · 데이터 전처리",
+      "title": "다중 조건 카운트 — alcohol≥13 AND color_intensity≥5",
+      "score": 10,
+      "problem": [
+        "train.csv 에서 alcohol 이 13 이상이면서 color_intensity 가 5 이상인 와인의 개수를 정수로 출력하시오."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "47",
+      "code": "import pandas as pd\nBASE = 'https://raw.githubusercontent.com/ashram68/bigdata-analytics-exam/main/data/exam-09/'\ntrain = pd.read_csv(BASE + 'train.csv')\n\n# 두 조건을 & 연산자로 동시에 적용 (각 조건은 괄호로 묶기)\ncond   = (train['alcohol'] >= 13) & (train['color_intensity'] >= 5)\nanswer = int(cond.sum())\nprint(answer)                # 47",
+      "explanation": "alcohol ≥ 13 AND color_intensity ≥ 5 두 조건을 동시에 만족하는 와인은 47개입니다. 알코올 도수가 높고 색이 진한 와인은 일반적으로 풀바디 레드 와인의 특성을 보이며, 학습용 142개 와인 중 약 33% 가 이 패턴에 해당합니다. 두 변수 간 양의 상관(r ≈ 0.55, 9-3-1 결과) 을 시사하는 결과입니다.",
+      "tip": "다중 조건 필터링 핵심 문법 — 각 조건은 반드시 괄호로 묶기: (조건1) & (조건2). AND = & / OR = | / NOT = ~ (Python 의 and/or/not 키워드 아님). 행 수 카운트: cond.sum() 또는 len(df[조건]) 또는 df[조건].shape[0]. 정수 변환 int() — numpy.int64 타입 이슈 방지."
+    },
+    {
+      "id": 2,
+      "type": "code",
+      "track": "type1",
+      "category": "1유형 · 데이터 전처리",
+      "title": "상위 분위수 추출 후 평균 — proline 상위 10% alcohol 평균",
+      "score": 10,
+      "problem": [
+        "train.csv 에서 proline 이 상위 10% 임계값(90% 분위수) 이상인 와인들의 alcohol 평균을 소수 4자리로 출력하시오."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "13.908",
+      "code": "import pandas as pd\nBASE = 'https://raw.githubusercontent.com/ashram68/bigdata-analytics-exam/main/data/exam-09/'\ntrain = pd.read_csv(BASE + 'train.csv')\n\n# 상위 10% 임계값 = 90% 분위수\nthreshold = train['proline'].quantile(0.9)   # 약 1194.5\n\n# 임계값 이상인 행 추출\ntop10  = train[train['proline'] >= threshold]\n\n# 해당 그룹의 alcohol 평균\nanswer = round(top10['alcohol'].mean(), 4)\nprint(answer)                                  # 13.908",
+      "explanation": "proline 상위 10% (threshold ≈ 1194.5) 에 해당하는 15개 와인의 alcohol 평균은 약 13.91% 로, 전체 평균(약 12.98%) 보다 약 0.93%p 높습니다. proline 은 와인의 성숙도와 품질을 나타내는 중요 지표로, 고품질 와인일수록 알코올 도수도 함께 높은 경향이 있음을 보여줍니다. (Wine 데이터에서 proline 은 class_0 와인을 대표하는 강력한 예측 변수입니다.)",
+      "tip": "분위수 기반 필터링 패턴 — 상위 10% : series.quantile(0.9) → 값 ≥ 임계값. 상위 25% : series.quantile(0.75). 하위 10% : series.quantile(0.1) → 값 ≤ 임계값. IQR = Q3(0.75) - Q1(0.25). '상위 N%' 정의 주의 — '상위 10%' = '90% 분위수 이상' (값이 큰 쪽), '하위 10%' = '10% 분위수 이하' (값이 작은 쪽). 일관된 비교 기호: '이상' = >=, '초과' = >."
+    },
+    {
+      "id": 3,
+      "type": "code",
+      "track": "type1",
+      "category": "1유형 · 데이터 전처리",
+      "title": "집단 간 평균 차이의 절댓값 — color_intensity 그룹별 alcohol 차이",
+      "score": 10,
+      "problem": [
+        "train.csv 에서 color_intensity 의 중앙값을 기준으로 두 그룹(high/low) 으로 나눈 후, 두 그룹 사이의 alcohol 평균 차이의 절댓값을 소수 4자리로 출력하시오."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "0.9466",
+      "code": "import pandas as pd\nBASE = 'https://raw.githubusercontent.com/ashram68/bigdata-analytics-exam/main/data/exam-09/'\ntrain = pd.read_csv(BASE + 'train.csv')\n\n# color_intensity 중앙값 기준으로 두 그룹 분리\nmedian_ci = train['color_intensity'].median()\n\nhigh = train[train['color_intensity'] >= median_ci]['alcohol']\nlow  = train[train['color_intensity'] <  median_ci]['alcohol']\n\n# 평균 차이의 절댓값\nanswer = round(abs(high.mean() - low.mean()), 4)\nprint(answer)                # 0.9466",
+      "explanation": "color_intensity 가 큰 그룹과 작은 그룹의 alcohol 평균 차이는 약 0.95%p 입니다. 색이 진한 와인이 알코올 도수도 더 높은 경향이 명확합니다. 이는 9-3-1 의 피어슨 상관(r ≈ 0.55, 중간 강도) 과 일관된 결과로, 단변량 비교(t-test) 시 평균 차이의 통계적 유의성도 확인 가능합니다.",
+      "tip": "집단 평균 차이의 절댓값 패턴 — 그룹 분할 기준: 중앙값(median) / 평균(mean) / 임의 임계값 / 범주형 변수. abs(mean_A - mean_B) 로 절댓값 계산 (부호 무관, 격차만 본다는 의도). t-test 통계량 계산과 밀접: t = (m_A - m_B) / SE → 분자가 평균 차이. 평균 차이만으로는 유의성 판단 불가 → t-test 나 ANOVA 필요. 본 문제는 통계량이 아닌 단순 차이 계산으로 1유형의 전형적 패턴."
+    },
+    {
+      "id": 4,
+      "type": "code",
+      "track": "type2",
+      "category": "2유형 · ML 모델링",
+      "title": "alcohol 도수 회귀 예측 (RandomForestRegressor, result.csv 제출)",
+      "score": 40,
+      "problem": [
+        "학습용 데이터(train.csv) 의 12개 변수를 사용하여 alcohol 도수를 예측하는 회귀 모델을 만드시오. 학습된 모델로 평가용 데이터(test.csv) 에 대한 예측값을 산출하고, 그 결과를 result.csv 파일로 저장하시오.",
+        "수행: X = train.drop(['ID','alcohol'], axis=1) / y = train['alcohol'] / RandomForestRegressor(n_estimators=100, random_state=42) / 검증 분할(test_size=0.2, random_state=42) 로 검증 RMSE/R² 확인 / 전체 학습 후 test 예측 → result.csv (ID + pred, 36행)",
+        "목표: R² > 0.50. 제출 형식: 헤더 포함, 컬럼 ID + pred, 회귀는 predict() 결과(실수) 그대로 저장"
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "RMSE ≈ 0.3928 / R² ≈ 0.7416 (평가용) / 검증 R² ≈ 0.5470",
+      "code": "import pandas as pd\nimport numpy as np\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.ensemble import RandomForestRegressor\nfrom sklearn.metrics import mean_squared_error, r2_score\n\nBASE  = 'https://raw.githubusercontent.com/ashram68/bigdata-analytics-exam/main/data/exam-09/'\ntrain = pd.read_csv(BASE + 'train.csv')\ntest  = pd.read_csv(BASE + 'test.csv')\n\n# 1) 입력/타겟 분리 (ID 제외)\nX      = train.drop(['ID', 'alcohol'], axis=1)\ny      = train['alcohol']\nX_test = test.drop('ID', axis=1)\n\n# 2) 검증 분할로 성능 확인\nX_t, X_v, y_t, y_v = train_test_split(\n    X, y, test_size=0.2, random_state=42\n)\nrfr = RandomForestRegressor(n_estimators=100, random_state=42)\nrfr.fit(X_t, y_t)\npred_v   = rfr.predict(X_v)\nval_rmse = np.sqrt(mean_squared_error(y_v, pred_v))\nval_r2   = r2_score(y_v, pred_v)\nprint(f'검증 RMSE: {val_rmse:.4f}   R²: {val_r2:.4f}')   # 0.5226 / 0.5470\n\n# 3) 전체 학습 → 평가용 예측\nrfr_final = RandomForestRegressor(n_estimators=100, random_state=42)\nrfr_final.fit(X, y)\ntest_pred = rfr_final.predict(X_test)\n\n# 4) result.csv 저장 (ID + pred)\nresult = pd.DataFrame({'ID': test['ID'], 'pred': test_pred})\nresult.to_csv('result.csv', index=False)\n\n# (선택) 자가 채점 — 모의고사 플랫폼 한정\nanswer = pd.read_csv(BASE + 'test_answer.csv')\nmerged = answer.merge(result, on='ID')\nrmse = np.sqrt(mean_squared_error(merged['alcohol'], merged['pred']))\nr2   = r2_score(merged['alcohol'], merged['pred'])\nprint(f'평가용 RMSE: {rmse:.4f}   R²: {r2:.4f}')          # 0.3928 / 0.7416",
+      "explanation": "R² 0.74 는 우수한 회귀 성능입니다. RMSE 0.39 는 alcohol 평균 13.0% 대비 약 3% 정도의 오차로 매우 양호합니다. 와인의 알코올 도수가 다른 화학적 특성(색, 폴리페놀 등) 과 강한 연관이 있어 예측 가능함을 보여줍니다. 특히 color_intensity, proline, ash 등이 중요 변수로 나타납니다. 검증 R²(0.55) 와 평가용 R²(0.74) 의 차이는 데이터 분할의 우연성에서 비롯됩니다 — 학습 데이터를 다시 8:2 로 분할하면 학습 가능한 데이터가 더 줄어들어(142→113행) 검증 성능이 낮게 나오는 것이 자연스럽습니다.",
+      "tip": "회귀 모델 비교 — LinearRegression: 빠르고 해석 가능, 비선형 관계 약함 / RandomForestRegressor: 비선형, 변수 상호작용 자동 처리 / GradientBoostingRegressor: 종종 RF 보다 약간 좋음, 튜닝 시간 필요. 회귀 vs 분류 result.csv 차이 — 회귀: predict() 로 예측값(실수) 저장. 분류: predict_proba()[:, 1] 로 양성 확률(0~1) 저장. 회귀 성능 지표 — RMSE 단위가 타겟과 같음, R² 0.7+ 우수·0.5+ 양호, MAE 이상치에 RMSE 보다 덜 민감. 실전 팁 — 검증 R² 만 보고 무리하게 튜닝하면 과적합으로 진짜 점수 떨어질 수 있음. 통과 기준(0.50) 넘으면 안정적 제출 권장."
+    },
+    {
+      "id": 5,
+      "type": "code",
+      "track": "type3",
+      "category": "3유형 · 통계 분석 (가설 검정)",
+      "title": "alcohol ↔ color_intensity 피어슨 상관 + 유의성",
+      "score": 15,
+      "problem": [
+        "두 변수 간 피어슨 상관과 유의성을 검정하시오.",
+        "출력: ① r (소수 4자리), ② p-value (소수 4자리), ③ 결론 + 상관 강도 해석"
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "r = 0.5464 / p < 0.0001 / 유의한 중간 양의 상관",
+      "code": "from sklearn.datasets import load_wine\nfrom scipy import stats\n\nwine = load_wine(as_frame=True).frame\n\nr, p = stats.pearsonr(wine['alcohol'], wine['color_intensity'])\nprint(f'r = {r:.4f}')        # 0.5464\nprint(f'p = {p:.4f}')        # 0.0000 (실제 3.06e-15)\nprint('기각' if p < 0.05 else '채택')",
+      "explanation": "r = 0.55 로 중간 강도의 양의 상관입니다. 알코올 도수가 높은 와인일수록 색상이 진한 경향을 보입니다. 이는 양조 과정에서 알코올과 색소(안토시아닌 등) 추출이 동시에 진행되는 화학적 메커니즘을 반영합니다. p < 0.0001 로 우연이 아니며, 회귀 모델에서 color_intensity 가 alcohol 예측에 중요한 변수임을 시사합니다.",
+      "tip": "본 결과는 [9-2] 회귀 모델에서 color_intensity 가 중요 변수로 등장한 이유를 직관적으로 설명. 단변량 상관 → 다변량 모델로 자연스럽게 이어지는 분석 흐름. Pearson r 강도 해석 — |r| < 0.3 약함 / 0.3 ~ 0.7 중간 / ≥ 0.7 강함. p-value 만 보지 말고 r 절댓값으로 실질적 강도 함께 평가하는 것이 실무 표준."
+    },
+    {
+      "id": 6,
+      "type": "code",
+      "track": "type3",
+      "category": "3유형 · 통계 분석 (가설 검정)",
+      "title": "target 별 flavanoids ANOVA + η²",
+      "score": 15,
+      "problem": [
+        "3개 와인 품종의 flavanoids 평균이 다른지 일원분산분석(One-way ANOVA) 으로 검정하시오.",
+        "수행: scipy.stats.f_oneway() + η²(eta-squared) 효과 크기 직접 계산. η² = SS_between / SS_total",
+        "출력: ① F (소수 2자리), ② p-value (소수 4자리), ③ η² (소수 4자리), ④ 결론 ('기각' 또는 '채택')"
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "F = 233.93 / p < 0.0001 / η² = 0.7278 / 기각",
+      "code": "from sklearn.datasets import load_wine\nfrom scipy import stats\n\nwine = load_wine(as_frame=True).frame\n\ngroups = [wine[wine['target']==i]['flavanoids'] for i in [0, 1, 2]]\nf, p   = stats.f_oneway(*groups)\n\n# 효과 크기 η² 직접 계산\noverall = wine['flavanoids'].mean()\nss_b    = sum(len(g) * (g.mean() - overall)**2 for g in groups)\nss_t    = sum((wine['flavanoids'] - overall)**2)\neta_sq  = ss_b / ss_t\n\nprint(f'F  = {f:.2f}')          # 233.93\nprint(f'p  = {p:.4f}')          # 0.0000 (실제 3.60e-50)\nprint(f'η² = {eta_sq:.4f}')     # 0.7278\nprint('기각' if p < 0.05 else '채택')",
+      "explanation": "F = 234 의 매우 큰 통계량과 η² = 0.73 으로, flavanoids 변동의 73% 가 와인 품종으로 설명됩니다. 이는 매우 큰 효과 크기로, flavanoids 가 와인 품종 분류의 핵심 변수임을 강력히 시사합니다. 실제 [4회차 작업형 2] RandomForest 모델에서도 flavanoids 가 가장 중요한 변수로 나타납니다.",
+      "tip": "ANOVA 응용 — η² 큰 변수 = ML 모델의 중요 변수 가능성 높음. 사후 검정(post-hoc Tukey) 으로 어느 그룹 쌍이 유의한지 확인 가능. 정규성 위반 시 Kruskal-Wallis (stats.kruskal) 사용. η² 해석 가이드 — 0.01 작은 효과 / 0.06 중간 효과 / 0.14 큰 효과. 본 결과 0.73 은 매우 큰 효과로 거의 완벽한 분리력."
+    }
+  ]
+}
