@@ -219,12 +219,40 @@
     },
     {
       "id": "exam-08",
-      "title": "8회차 모의고사",
-      "subtitle": "준비 중",
-      "description": "원고 도착 후 활성화됩니다.",
-      "questionCount": 0,
-      "enabled": false,
-      "types": {},
+      "title": "8회 빅데이터 분석기사 파이썬 작업형 모의고사",
+      "subtitle": "",
+      "description": "Diabetes 분류 변환 — 실제 시험 형식 도입 (학습/평가 분리, result.csv 제출). 작업형 1·2·3유형 분리 풀이 (총 6문항 · 100점 · 180분)",
+      "questionCount": 6,
+      "enabled": true,
+      "types": {
+        "type1": {
+          "name": "1유형",
+          "label": "데이터 전처리",
+          "questionCount": 3,
+          "score": 30,
+          "submitMethod": "print",
+          "colabUrl": "https://colab.research.google.com/github/ashram68/bigdata-analytics-exam/blob/main/data/exam-08/exam-08_type1.ipynb",
+          "enabled": true
+        },
+        "type2": {
+          "name": "2유형",
+          "label": "ML 모델링 (result.csv 제출)",
+          "questionCount": 1,
+          "score": 40,
+          "submitMethod": "csv",
+          "colabUrl": "https://colab.research.google.com/github/ashram68/bigdata-analytics-exam/blob/main/data/exam-08/exam-08_type2.ipynb",
+          "enabled": true
+        },
+        "type3": {
+          "name": "3유형",
+          "label": "통계 분석 (카이제곱 + 상관)",
+          "questionCount": 2,
+          "score": 30,
+          "submitMethod": "print",
+          "colabUrl": "https://colab.research.google.com/github/ashram68/bigdata-analytics-exam/blob/main/data/exam-08/exam-08_type3.ipynb",
+          "enabled": true
+        }
+      },
       "lectureUrl": "#"
     },
     {
