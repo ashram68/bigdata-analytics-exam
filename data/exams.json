@@ -237,12 +237,40 @@
     },
     {
       "id": "exam-07",
-      "title": "7회차 모의고사",
-      "subtitle": "준비 중",
-      "description": "원고 도착 후 활성화됩니다.",
-      "questionCount": 0,
-      "enabled": false,
-      "types": {},
+      "title": "7회 빅데이터 분석기사 파이썬 작업형 모의고사",
+      "subtitle": "",
+      "description": "Heart Disease (심장병 진단) — 작업형 1·2·3유형 분리 풀이 (총 7문항 · 100점 · 180분)",
+      "questionCount": 7,
+      "enabled": true,
+      "types": {
+        "type1": {
+          "name": "1유형",
+          "label": "데이터 전처리",
+          "questionCount": 3,
+          "score": 30,
+          "submitMethod": "print",
+          "colabUrl": "https://colab.research.google.com/github/ashram68/bigdata-analytics-exam/blob/main/data/exam-07/exam-07_type1.ipynb",
+          "enabled": true
+        },
+        "type2": {
+          "name": "2유형",
+          "label": "ML 모델링 (RF + result.csv)",
+          "questionCount": 1,
+          "score": 40,
+          "submitMethod": "csv",
+          "colabUrl": "https://colab.research.google.com/github/ashram68/bigdata-analytics-exam/blob/main/data/exam-07/exam-07_type2.ipynb",
+          "enabled": true
+        },
+        "type3": {
+          "name": "3유형",
+          "label": "통계 분석 (ANOVA + Levene + Welch)",
+          "questionCount": 3,
+          "score": 30,
+          "submitMethod": "print",
+          "colabUrl": "https://colab.research.google.com/github/ashram68/bigdata-analytics-exam/blob/main/data/exam-07/exam-07_type3.ipynb",
+          "enabled": true
+        }
+      },
       "lectureUrl": "#"
     },
     {
