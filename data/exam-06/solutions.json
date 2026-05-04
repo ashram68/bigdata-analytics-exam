@@ -1,0 +1,118 @@
+{
+  "examId": "exam-06",
+  "title": "6회차 모의고사 — Titanic (다른 변수 활용)",
+  "subtitle": "작업형 1·2·3유형 정답 및 해설",
+  "dataset": "titanic.csv (Kaggle 원본 PascalCase 컬럼, 사이트 호스팅)",
+  "datasetSource": "Kaggle Titanic 데이터 (891행 × 12, 컬럼: PassengerId, Survived, Pclass, Name, Gender, Age, SibSp, Parch, Ticket, Fare, Cabin, Embarked). 모든 유형이 동일 titanic.csv 사용 (1회차 seaborn 내장 titanic 과 다름 — 6회 PDF v3 명시 사양)",
+  "prerequisiteCode": "import pandas as pd\nimport numpy as np\nimport warnings\nwarnings.filterwarnings('ignore')\n\n# 6회차 공통 데이터 — 사이트 호스팅 titanic.csv\nBASE = 'https://raw.githubusercontent.com/ashram68/bigdata-analytics-exam/main/data/exam-06/'\ndf = pd.read_csv(BASE + 'titanic.csv')\nprint(df.shape)               # (891, 12)\nprint(df.columns.tolist())\n# ['PassengerId','Survived','Pclass','Name','Gender','Age','SibSp','Parch','Ticket','Fare','Cabin','Embarked']",
+  "questions": [
+    {
+      "id": 1,
+      "type": "code",
+      "track": "type1",
+      "category": "1유형 · 데이터 전처리",
+      "title": "Embarked 결측 처리 후 C 항구 카운트",
+      "score": 10,
+      "problem": [
+        "Titanic 데이터에서 Embarked 변수의 결측치를 최빈값으로 대체한 후, C(Cherbourg) 항구에서 탑승한 승객 수를 정수로 출력하시오."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "168",
+      "code": "import pandas as pd\nBASE = 'https://raw.githubusercontent.com/ashram68/bigdata-analytics-exam/main/data/exam-06/'\ndf = pd.read_csv(BASE + 'titanic.csv')\n\n# 최빈값으로 결측치 대체 (Embarked 결측 2건)\nmode_emb     = df['Embarked'].mode()[0]   # 'S' (Southampton)\ndf['Embarked'] = df['Embarked'].fillna(mode_emb)\n\n# C(Cherbourg) 카운트\nanswer = int((df['Embarked'] == 'C').sum())\nprint(answer)                              # 168",
+      "explanation": "결측 2개를 최빈값('S' = Southampton) 으로 대체한 후, C(Cherbourg) 항구 출발자는 168명입니다. Cherbourg 출신은 1등석 비율이 높고 평균 Fare 도 높은 특성을 가져, 생존율이 다른 항구보다 높습니다. 항구별 사회·경제적 차이가 생존에 영향을 미친 흥미로운 변수입니다.",
+      "tip": "최빈값 대체 — 범주형 변수에 가장 많이 사용. mode() 는 Series 를 반환하므로 [0] 으로 첫 값만 추출 (pandas 3.x 에서는 mode().iloc[0] 이 더 안전). 대체 옵션 비교 — 최빈값(범주형 표준), 평균(연속형, 이상치 민감), 중앙값(연속형, 이상치 robust), dropna(결측 매우 적을 때)."
+    },
+    {
+      "id": 2,
+      "type": "code",
+      "track": "type1",
+      "category": "1유형 · 데이터 전처리",
+      "title": "가족 있는 승객 생존율",
+      "score": 10,
+      "problem": [
+        "가족크기 (SibSp + Parch) 가 0보다 큰 승객의 생존율을 소수 4자리로 출력하시오."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "0.5056",
+      "code": "import pandas as pd\nBASE = 'https://raw.githubusercontent.com/ashram68/bigdata-analytics-exam/main/data/exam-06/'\ndf = pd.read_csv(BASE + 'titanic.csv')\n\n# 파생 변수: 가족크기\ndf['family'] = df['SibSp'] + df['Parch']\n\n# 가족이 있는 승객만 필터링\nhave_fam = df[df['family'] > 0]\n\n# 생존율\nanswer = round(have_fam['Survived'].mean(), 4)\nprint(answer)                # 0.5056",
+      "explanation": "가족이 있는 승객의 생존율은 50.6% 로 전체 평균(38.4%) 보다 12%p 높습니다. 가족 단위 여행자는 1·2등석 비율이 높고, 부모가 자녀를 챙기는 등의 행동이 생존에 도움이 되었을 가능성이 큽니다. 단, 매우 큰 가족(family ≥ 5) 은 오히려 생존율이 낮아 '중간 크기 가족' 이 최적의 생존 확률을 가지는 비선형 패턴이 있습니다.",
+      "tip": "파생 변수 (Feature Engineering) — SibSp + Parch 처럼 기존 변수를 결합해 새 변수를 만드는 작업이 ML 성능을 크게 끌어올릴 수 있음. family 는 Titanic 분석의 고전적 파생 변수. 다른 유용한 파생 변수 — is_alone (family==0), family_category (small/medium/large), title (Mr/Mrs/Miss 추출), fare_per_person (Fare / family_size)."
+    },
+    {
+      "id": 3,
+      "type": "code",
+      "track": "type1",
+      "category": "1유형 · 데이터 전처리",
+      "title": "Pclass 별 생존율 차이 (max - min)",
+      "score": 10,
+      "problem": [
+        "Pclass(객실 등급) 별 생존율을 구하고, 최댓값과 최솟값의 차이를 소수 4자리로 출력하시오."
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "0.3873",
+      "code": "import pandas as pd\nBASE = 'https://raw.githubusercontent.com/ashram68/bigdata-analytics-exam/main/data/exam-06/'\ndf = pd.read_csv(BASE + 'titanic.csv')\n\n# Pclass 별 생존율\nsr = df.groupby('Pclass')['Survived'].mean()\n# Pclass\n# 1    0.6296\n# 2    0.4728\n# 3    0.2424\n\n# max - min\nanswer = round(sr.max() - sr.min(), 4)\nprint(answer)                # 0.3873",
+      "explanation": "1등석(63%) 과 3등석(24%) 의 생존율 차이는 약 39%p 로 매우 큽니다. 같은 침몰 사고 안에서도 좌석 등급(=경제적 지위) 이 생존을 강하게 결정한 비극적 사실입니다. '여성과 어린이 우선' 원칙이 있었지만, 좌석 위치(상층 vs 하층 갑판) 와 정보 접근성의 차이가 작용했습니다.",
+      "tip": "비율 차이 vs 승산비(Odds Ratio) — 비율 차이는 승산비로 표현하면 더 강력한 의미. 1등석 odds = 0.63/0.37 = 1.70, 3등석 odds = 0.24/0.76 = 0.32, OR = 1.70/0.32 ≈ 5.3. 해석: 1등석 승객의 생존 odds 가 3등석의 5배 이상. (5회 모의고사 로지스틱 회귀와 연결되는 개념.)"
+    },
+    {
+      "id": 4,
+      "type": "code",
+      "track": "type2",
+      "category": "2유형 · ML 모델링",
+      "title": "Titanic 생존 예측 (Logistic Regression baseline + family + StandardScaler)",
+      "score": 40,
+      "problem": [
+        "파생 변수 family = SibSp + Parch 를 추가하여 Logistic Regression 으로 생존을 예측하시오. 검증 데이터의 ROC-AUC 를 출력하시오.",
+        "수행: ① 결측치 처리 (Age median, Embarked mode, Fare median), ② family = SibSp + Parch, ③ 사용 변수 ['Pclass','Gender','Age','Fare','Embarked','family'], ④ pd.get_dummies(columns=['Gender','Embarked'], drop_first=True), ⑤ train_test_split(test_size=0.2, random_state=42, stratify=y), ⑥ StandardScaler 적용, ⑦ LogisticRegression(max_iter=1000, random_state=42) 학습",
+        "목표: AUC ≥ 0.80"
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "AUC ≈ 0.8385",
+      "code": "import pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import roc_auc_score\n\nBASE = 'https://raw.githubusercontent.com/ashram68/bigdata-analytics-exam/main/data/exam-06/'\ndf   = pd.read_csv(BASE + 'titanic.csv')\n\n# Step 1: 결측치 처리\ndf['Age']      = df['Age'].fillna(df['Age'].median())\ndf['Embarked'] = df['Embarked'].fillna(df['Embarked'].mode()[0])\ndf['Fare']     = df['Fare'].fillna(df['Fare'].median())\n\n# Step 2: 파생 변수\ndf['family']   = df['SibSp'] + df['Parch']\n\n# Step 3-4: 변수 선택 + one-hot encode\nfeatures = ['Pclass', 'Gender', 'Age', 'Fare', 'Embarked', 'family']\nX = pd.get_dummies(df[features], columns=['Gender','Embarked'], drop_first=True)\ny = df['Survived']\n\n# Step 5: 학습/검증 분할 (stratify)\nX_tr, X_va, y_tr, y_va = train_test_split(\n    X, y, test_size=0.2, random_state=42, stratify=y\n)\n\n# Step 6: StandardScaler (LR 은 스케일에 민감)\nscaler = StandardScaler()\nX_tr_s = scaler.fit_transform(X_tr)\nX_va_s = scaler.transform(X_va)\n\n# Step 7: Logistic Regression 학습\nlr = LogisticRegression(max_iter=1000, random_state=42)\nlr.fit(X_tr_s, y_tr)\n\n# ROC-AUC 평가\nproba = lr.predict_proba(X_va_s)[:, 1]\nauc   = roc_auc_score(y_va, proba)\nprint(f'AUC: {auc:.4f}')                    # 0.8385",
+      "explanation": "Logistic Regression + StandardScaler 로 AUC 0.84 를 달성했습니다. 1회차 RandomForest(0.83) 와 비슷한 성능으로, 선형 모델도 충분히 강력함을 보여줍니다. family 파생 변수의 추가가 약간의 개선에 기여했습니다. 회귀 계수 부호를 통해 Gender_male(-), Pclass(-), family(-) 효과를 직관적으로 해석할 수 있는 것이 LR 의 큰 장점입니다.",
+      "tip": "모델 선택 기준 — 해석 가능성 중요: LR (계수 = 영향력). 비선형성/상호작용 강함: RF, XGBoost. 빠른 baseline: LR. 시험에서는 두 가지 모두 시도 후 더 좋은 쪽 제출 가능. StandardScaler 필수성 — Logistic Regression 은 스케일에 민감 (특히 정규화 적용 시). 변수 단위가 다르면 큰 단위 변수가 회귀계수를 지배 → 트리 모델은 스케일 무관, LR 은 반드시 스케일링. 결측치 처리 전략 — Age·Fare → median (이상치 강건), Embarked → mode (범주형 표준)."
+    },
+    {
+      "id": 5,
+      "type": "code",
+      "track": "type3",
+      "category": "3유형 · 통계 분석 (가설 검정)",
+      "title": "생존자 vs 사망자 Age 평균 (독립표본 t-검정)",
+      "score": 15,
+      "problem": [
+        "생존자(Survived=1) 와 사망자(Survived=0) 의 Age 평균이 다른지 독립표본 t-검정으로 검정하시오. (Age 결측치는 제거, 양측, α=0.05)",
+        "수행: Levene 등분산 검정 → ttest_ind(equal_var=...)",
+        "출력: ① t-통계량 (소수 2자리), ② p-value (소수 4자리), ③ 결론 ('기각' 또는 '채택')"
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "t = -2.07 / p = 0.0391 / 기각 (Cohen's d ≈ -0.16)",
+      "code": "import pandas as pd\nimport numpy as np\nfrom scipy import stats\n\nBASE = 'https://raw.githubusercontent.com/ashram68/bigdata-analytics-exam/main/data/exam-06/'\ndf   = pd.read_csv(BASE + 'titanic.csv')\n\n# Age 결측치 제거 (read_csv 직후 dropna 적용 — 결측 채워진 상태에서 dropna 하면 효과 없음 주의)\ng_s = df[df['Survived']==1]['Age'].dropna()   # 생존자\ng_d = df[df['Survived']==0]['Age'].dropna()   # 사망자\n\n# Levene 등분산 검정\nlev_p     = stats.levene(g_s, g_d).pvalue     # 0.2746\nequal_var = (lev_p >= 0.05)                    # True → 표준 t-test\nprint(f'Levene p = {lev_p:.4f} → equal_var = {equal_var}')\n\n# 독립표본 t-검정\nt_stat, p_value = stats.ttest_ind(g_s, g_d, equal_var=equal_var)\n\n# Cohen's d (효과 크기)\nn1, n2 = len(g_s), len(g_d)\ns1, s2 = g_s.std(ddof=1), g_d.std(ddof=1)\npooled = np.sqrt(((n1-1)*s1**2 + (n2-1)*s2**2) / (n1+n2-2))\nd      = (g_s.mean() - g_d.mean()) / pooled\n\nprint(f't = {t_stat:.2f}')              # -2.07\nprint(f'p = {p_value:.4f}')             # 0.0391\nprint(f\"d = {d:.4f}\")                   # -0.1575\nprint('기각' if p_value < 0.05 else '채택')",
+      "explanation": "생존자(평균 28.3세) 가 사망자(평균 30.6세) 보다 약 2.3세 어립니다. p = 0.039 로 5% 유의수준에서 간신히 기각됩니다. '어린이 우선' 정책의 효과가 통계적으로 작게 나마 확인된 결과입니다. 하지만 효과 크기 (Cohen's d ≈ -0.16) 는 매우 작아 실질적 차이는 미미하며, 생존을 결정하는 데는 Gender(여성 생존율 74% vs 남성 19%) 와 Pclass 가 훨씬 강한 영향을 미쳤습니다.",
+      "tip": "p값 경계 사례 (p ≈ 0.05) — '유의하지만 robust 하지 않은' 결과. 재현 연구에서 같은 결론이 안 나올 가능성, 다중 검정에서 false discovery 위험. 효과 크기와 함께 보고하는 것이 모범 답안. 보고문 예시 (의료/사회과학 표준): 't(df) = -2.07, p = 0.039, Cohen's d = -0.16 — 통계적으로는 유의하나 효과 크기가 작아 실질적 차이는 제한적임'. Cohen's d 해석 — |d|<0.2 작은 효과 (본 결과 0.16) / |d|≈0.5 중간 효과 / |d|≥0.8 큰 효과."
+    },
+    {
+      "id": 6,
+      "type": "code",
+      "track": "type3",
+      "category": "3유형 · 통계 분석 (가설 검정)",
+      "title": "Gender 와 Survived 카이제곱 독립성 검정",
+      "score": 15,
+      "problem": [
+        "Gender(성별) 와 Survived(생존 여부) 두 범주형 변수가 독립인지 카이제곱 독립성 검정으로 확인하시오. (α=0.05)",
+        "수행: pd.crosstab → stats.chi2_contingency → Cramer's V (효과 크기)",
+        "출력: ① 카이제곱 통계량 (소수 2자리), ② p-value (소수 4자리), ③ Cramer's V (소수 4자리), ④ 결론"
+      ],
+      "choices": null,
+      "answer": null,
+      "answerDisplay": "χ² = 260.72 / p < 0.0001 / Cramer's V = 0.5409 / 기각",
+      "code": "import pandas as pd\nimport numpy as np\nfrom scipy import stats\n\nBASE = 'https://raw.githubusercontent.com/ashram68/bigdata-analytics-exam/main/data/exam-06/'\ndf   = pd.read_csv(BASE + 'titanic.csv')\n\n# Step 1: 교차표 (분할표)\nct = pd.crosstab(df['Gender'], df['Survived'])\nprint(ct)\n# Survived    0    1\n# Gender\n# female     81  233\n# male      468  109\n\n# Step 2: 카이제곱 독립성 검정\nchi2, p_value, dof, expected = stats.chi2_contingency(ct)\n\n# Step 3: Cramer's V (효과 크기)\nn       = ct.sum().sum()                    # 891\nmin_dim = min(ct.shape) - 1                  # 1\nv       = np.sqrt(chi2 / (n * min_dim))\n\nprint(f'chi2 = {chi2:.4f}')                  # 260.7170\nprint(f'p    = {p_value:.4f}')               # 0.0000 (실제 1.20e-58)\nprint(f\"V    = {v:.4f}\")                    # 0.5409\nprint(f'dof  = {dof}')                       # 1\nprint('기각' if p_value < 0.05 else '채택')",
+      "explanation": "χ² = 260.72 의 매우 큰 값과 p < 0.0001 로 Gender 와 Survived 가 강력히 연관되어 있음을 입증합니다. Cramer's V = 0.54 는 큰 효과 크기로 (0.5 이상이면 큼), 두 변수 간 연관성이 매우 강함을 의미합니다. 여성 생존율 74% vs 남성 19% 의 압도적 차이가 통계적으로 명확히 드러나며, 이는 '여성·어린이 우선' 구명보트 정책의 효과를 강력히 시사합니다.",
+      "tip": "카이제곱 검정의 가정 — (1) 모든 기대빈도 ≥ 5 (작은 셀이 있으면 Fisher's exact test 사용), (2) 관측치 독립, (3) 표본 크기 충분 (n ≥ 30 권장). Cramer's V 해석 — 0.1 작은 효과 / 0.3 중간 효과 / 0.5 큰 효과 (본 결과 0.5409). 2×2 표에서는 phi coefficient 가 V 와 동일. 의료통계 보고 양식: 'χ²(1) = 260.72, p < 0.001, Cramer's V = 0.54 — 두 변수 간 매우 강한 연관성'."
+    }
+  ]
+}
