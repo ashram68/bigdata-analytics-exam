@@ -363,7 +363,7 @@
           </button>
           <div class="accordion-body open">
             <div class="accordion-content">
-              <p style="line-height: 1.8;">${escapeHtml(q.explanation)}</p>
+              <p style="line-height: 1.8; white-space: pre-line;">${escapeHtml(q.explanation)}</p>
               ${q.tip ? `
                 <div class="tip-box mt-md">
                   <span class="tip-icon">📌</span>
