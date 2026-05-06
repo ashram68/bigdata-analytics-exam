@@ -70,7 +70,7 @@
             ${typeButton('type1', types.type1, exam.id)}
             ${typeButton('type2', types.type2, exam.id)}
             ${typeButton('type3', types.type3, exam.id)}
-            <button class="lobby-btn lobby-btn-outline" onclick="location.href='viewer.html?exam=${exam.id}'">정답 및 해설 보기</button>
+            <button class="lobby-btn lobby-btn-colab" onclick="location.href='viewer.html?exam=${exam.id}'">정답 및 해설 보기</button>
           </div>
         </div>
       `;
