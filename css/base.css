@@ -911,6 +911,16 @@ h4 { font-size: 1.1rem; }
   background: #f5f6f8;
 }
 
+.lobby-btn-gray {
+  background: #e5e7eb;
+  color: #152345;
+  border-color: #d0d5dd;
+}
+
+.lobby-btn-gray:hover {
+  background: #d1d5db;
+}
+
 .exam-card {
   position: relative;
   overflow: hidden;
