@@ -147,7 +147,7 @@
 
     // Link copy (트랙 파라미터 보존)
     document.getElementById('copy-link-btn').addEventListener('click', function () {
-      var url = window.location.origin + window.location.pathname.replace(/mobile\.html$/, '') + window.location.search;
+      var url = window.location.origin + window.location.pathname.replace(/mobile(\.html)?$/, '') + window.location.search;
       if (navigator.clipboard) {
         navigator.clipboard.writeText(url).then(function () {
           showToast('링크가 복사되었습니다!');
@@ -166,7 +166,7 @@
 
     // Web Share API (트랙 파라미터 보존)
     document.getElementById('share-btn').addEventListener('click', function () {
-      var url = window.location.origin + window.location.pathname.replace(/mobile\.html$/, '') + window.location.search;
+      var url = window.location.origin + window.location.pathname.replace(/mobile(\.html)?$/, '') + window.location.search;
       if (navigator.share) {
         navigator.share({
           title: '빅데이터 분석기사 실기 모의고사',
